@@ -53,8 +53,9 @@
     <UnityVersion>2020.3.20f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Game\GameMasterScript.cs" />
     <Compile Include="Assets\Scripts\Environment\TileScript.cs" />
-    <Compile Include="Assets\Scripts\Game\GameMaster.cs" />
+    <Compile Include="Assets\Scripts\Entities\PlayerKnightScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
