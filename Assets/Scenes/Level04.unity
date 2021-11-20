@@ -256,7 +256,7 @@ MonoBehaviour:
   - {x: 0, y: 0}
   playerPosition: {x: 0, y: -2}
   endPosition: {x: 0, y: 2}
-  nextLevel: Level02
+  nextLevel: Level05
   playerKnight: {fileID: 5881060923175236226}
   tilePrefab: {fileID: 3293928215325189452, guid: a8a2696b34f5d70428dc53fcf4a2fc86, type: 3}
   enemyPrefab: {fileID: 2717513516635789636, guid: ab9bd1d2642f0484ca43ab209f5eefba, type: 3}

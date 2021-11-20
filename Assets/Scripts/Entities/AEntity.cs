@@ -4,6 +4,9 @@ using UnityEngine;
 
 public abstract class AEntity : MonoBehaviour
 {
+    //Protected
+    protected GameMasterScript gameMaster;
+
     //Private
     SpriteRenderer spriteRenderer; //Le component du sprite
 
@@ -21,8 +24,14 @@ public abstract class AEntity : MonoBehaviour
     /// <param name="start">position de depart du joueur</param>
     public void Initialize(Vector2 start)
     {
+        gameMaster = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
         transform.position = start;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         CheckRenderingOrder();
     }
+
+    /// <summary>
+    /// Ce qu'il se passe lorsqu'on se fait toucher
+    /// </summary>
+    public abstract void getHurt();
 }

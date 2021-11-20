@@ -18,7 +18,6 @@ public class GameMasterScript : MonoBehaviour
     public GameObject enemyPrefab; //Pour stocker le prefab de l'ennemi
 
     //Private
-    
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
     GameObject currentPrefab; //Le prefab qu'on vient d'instancier
@@ -108,7 +107,7 @@ public class GameMasterScript : MonoBehaviour
 
         //On check les entites
         if (playerKnight.transform.position.x == x && playerKnight.transform.position.y == y) return 2;
-        else foreach (GameObject enemy in enemies) if (enemy.transform.position.x == x && enemy.transform.position.x == y) return 2;
+        else foreach (GameObject enemy in enemies) if (enemy.transform.position.x == x && enemy.transform.position.y == y) return 2;
 
         return 1;
     }
@@ -123,8 +122,31 @@ public class GameMasterScript : MonoBehaviour
         return AuthorizeMovement((int)vec.x, (int)vec.y);
     }
 
+    /// <summary>
+    /// Cherche l'ennemi qu'on pourrait viser
+    /// </summary>
+    /// <param name="vec">La case qu'on veut interroger</param>
+    /// <returns>null si il y a personne, ou un gameobject si il y a quelqu'un ici</returns>
+    public GameObject GetEnemy(Vector2 vec)
+    {
+        foreach (GameObject enemy in enemies) if ((Vector2)enemy.transform.position == vec) return enemy;
+        return null;
+    }
+
+    /// <summary>
+    /// Regarde si on a atteint la tuile de fin de niveau ou pas
+    /// </summary>
     public void EndLevelChecker()
     {
         if ((Vector2)playerKnight.transform.position == endPosition) SceneManager.LoadScene(nextLevel);
+    }
+
+    /// <summary>
+    /// Utilisez par les ennemis pour qu'ils se retirent de notre liste
+    /// </summary>
+    /// <param name="enemy">l'ennemi a retirer</param>
+    public void EnemyRemover(GameObject enemy)
+    {
+        enemies.Remove(enemy);
     }
 }

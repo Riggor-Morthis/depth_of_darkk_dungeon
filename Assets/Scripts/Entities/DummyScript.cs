@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DummyScript : AEntity
+public class DummyScript : AEnemy
 {
 
 }
