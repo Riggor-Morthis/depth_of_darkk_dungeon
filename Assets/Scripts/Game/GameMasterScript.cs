@@ -7,6 +7,7 @@ public class GameMasterScript : MonoBehaviour
 {
     //Public
     public int levelWidth, levelHeight; //Les dimensions de notre dongeon en terme de nombre de tuiles
+    public List<Vector2> holesInTheFloor; //La ou il n'y a pas de sol dans notre niveau
     public Vector2 playerPosition; //La position du joueur au debut du niveau
     public Vector2 endPosition; //La position de la tuile de fin de niveau
     public string nextLevel; //Le nom de la scene suivante
@@ -15,7 +16,7 @@ public class GameMasterScript : MonoBehaviour
 
     //Private
     
-    int startN, startM; //Point de depart des coordonnes (dans le negatif)
+    int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
     GameObject currentPrefab; //Le prefab qu'on vient d'instancier
     Color[] colors = new Color[2] { new Color(145f / 255, 205f / 255, 220f / 255), new Color(105f / 255, 165f / 255, 180f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
@@ -45,16 +46,22 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void FloorBuilder()
     {
-        startN = -levelWidth / 2;
-        startM = -levelHeight / 2;
+        startX = -levelWidth / 2;
+        startY = -levelHeight / 2;
 
+        int tempX, tempY;
         dungeonGrid = new GameObject[levelWidth, levelHeight];
         for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
             {
-                dungeonGrid[i, j] = Instantiate(tilePrefab);
-                pairImpair = (i + j) % 2;
-                if(startN + i == endPosition.x && startM + j == endPosition.y) dungeonGrid[i, j].GetComponent<TileScript>().Initialize(startN + i, startM + j, endTile);
-                else dungeonGrid[i, j].GetComponent<TileScript>().Initialize(startN + i, startM + j, colors[pairImpair]);
+                tempX = startX + i;
+                tempY = startY + j;
+                if(!holesInTheFloor.Contains(new Vector2(tempX, tempY)))
+                {
+                    dungeonGrid[i, j] = Instantiate(tilePrefab);
+                    pairImpair = (i + j) % 2;
+                    if (tempX == endPosition.x && tempY == endPosition.y) dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, endTile);
+                    else dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
+                }
             }
     }
 
@@ -63,7 +70,7 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void PlayerPlacer()
     {
-        playerKnight.transform.position = playerPosition;
+        playerKnight.Initialize(playerPosition);
     }
 
     /// <summary>
@@ -74,8 +81,13 @@ public class GameMasterScript : MonoBehaviour
     /// <returns>true si le mouvement reste sur du sol, false sinon</returns>
     public bool AuthorizeMovement(int x, int y)
     {
-        if (x < startN || x > startN + levelWidth - 1) return false;
-        if (y < startM || y > startM + levelHeight - 1) return false;
+        //On check les bordures de base
+        if (x < startX || x > startX + levelWidth - 1) return false;
+        if (y < startY || y > startY + levelHeight - 1) return false;
+
+        //On check les trous
+        if (dungeonGrid[x - startX, y - startY] == null) return false;
+
         return true;
     }
 

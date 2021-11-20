@@ -11,6 +11,7 @@ public class PlayerKnightScript : MonoBehaviour
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
     float touchAngle; //L'angle entre les "pieds" du joueur et l'endroit ou on a touche
     Vector3 moveVector; //Le vecteur de notre mouvement
+    SpriteRenderer spriteRenderer; //Le component du sprite
 
     //On recupere la ou le joueur appuie, et on interprete alors l'ordre correspondant
     private void Update()
@@ -51,7 +52,27 @@ public class PlayerKnightScript : MonoBehaviour
         if (gameMaster.AuthorizeMovement(transform.position + moveVector))
         {
             transform.position += moveVector;
+            CheckRenderingOrder();
             gameMaster.EndLevelChecker();
         }
+    }
+
+    /// <summary>
+    /// Modifie le rendering order du joueur en fonction de ses coordonnes en y
+    /// </summary>
+    private void CheckRenderingOrder()
+    {
+        spriteRenderer.sortingOrder = -(int)transform.position.y;
+    }
+
+    /// <summary>
+    /// Cree le joueur de la bonne face
+    /// </summary>
+    /// <param name="start">position de depart du joueur</param>
+    public void Initialize(Vector2 start)
+    {
+        transform.position = start;
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        CheckRenderingOrder();   
     }
 }
