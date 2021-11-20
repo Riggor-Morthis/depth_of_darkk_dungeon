@@ -119,10 +119,10 @@ MonoBehaviour:
     y: 30
     width: 1920
     height: 947
-  m_MinSize: {x: 678, y: 492}
-  m_MaxSize: {x: 14001, y: 14042}
+  m_MinSize: {x: 679, y: 492}
+  m_MaxSize: {x: 14002, y: 14042}
   vertical: 0
-  controlID: 102
+  controlID: 36
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -192,8 +192,8 @@ MonoBehaviour:
     y: 0
     width: 223
     height: 676
-  m_MinSize: {x: 201, y: 221}
-  m_MaxSize: {x: 4001, y: 4021}
+  m_MinSize: {x: 200, y: 200}
+  m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
@@ -426,7 +426,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 3cfbffff0a420000
+      m_ExpandedIDs: e8e8fffffee8ffff96f1ffff06f7ffff1ef7ffff20f7ffff64f7ffff7cf7ffff7ef7ffffd0f7ffffe8f7ffffacf8ffff46fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -486,9 +486,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 3.2677305, y: 0.6880899, z: 7.4048076}
+    m_Target: {x: 2.8951077, y: 0.8546953, z: 7.3765025}
     speed: 2
-    m_Value: {x: 3.2677305, y: 0.6880899, z: 7.4048076}
+    m_Value: {x: 2.8951077, y: 0.8546953, z: 7.3765025}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -539,9 +539,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 6.290006
+    m_Target: 6.573056
     speed: 2
-    m_Value: 6.290006
+    m_Value: 6.573056
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -559,7 +559,7 @@ MonoBehaviour:
     m_FarClip: 10000
     m_DynamicClip: 1
     m_OcclusionCulling: 0
-  m_LastSceneViewRotation: {x: -0.21671662, y: 0.1795124, z: -0.040578082, w: -0.95872843}
+  m_LastSceneViewRotation: {x: -0.08717229, y: 0.89959055, z: -0.21045254, w: -0.3726226}
   m_LastSceneViewOrtho: 0
   m_ReplacementShader: {fileID: 0}
   m_ReplacementString: 
@@ -629,22 +629,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/Entities
+    - Assets/Scenes
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 96
   m_LastFolders:
-  - Assets/Scripts/Entities
+  - Assets/Scenes
   m_LastFoldersGridSize: 96
   m_LastProjectPath: C:\Users\googl\unity-workspace\depth_of_darkk_dungeon
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 58420000
-    m_LastClickedID: 16984
-    m_ExpandedIDs: 000000004c42000054420000
+    m_SelectedIDs: 4c420000
+    m_LastClickedID: 16972
+    m_ExpandedIDs: 00000000464200004e420000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -672,7 +672,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000004c420000
+    m_ExpandedIDs: 0000000046420000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -699,7 +699,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000f23800000e3900002a39000046390000623900007e390000be3a0000cc380000003a0000063c0000000000001462000050420000
     m_RenameOverlay:
       m_UserAcceptedRename: 0

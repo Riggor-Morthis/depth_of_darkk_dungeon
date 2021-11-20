@@ -4,34 +4,54 @@ using UnityEngine;
 
 public class PlayerKnightScript : MonoBehaviour
 {
+    //Public
+    public GameMasterScript gameMaster;
+
     //Private
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
     float touchAngle; //L'angle entre les "pieds" du joueur et l'endroit ou on a touche
-    Vector3 moveVector; //Le vector du mouvement que l'on espere realiser
+    Vector3 moveVector; //Le vecteur de notre mouvement
 
+    //On recupere la ou le joueur appuie, et on interprete alors l'ordre correspondant
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            Move();
+            GetInput();
+            MoveVectorCreator();
+            MovePlayer();
         }
     }
 
     /// <summary>
-    /// Assure le mouvement de notre joueur en fonction de la position du touch
+    /// Recupere les inputs du joueur
     /// </summary>
-    private void Move()
+    private void GetInput()
     {
         playerToMouse = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
         touchAngle = Vector2.SignedAngle(transform.right, playerToMouse);
-        
-        //On determine le vecteur a creer
+    }
+
+    /// <summary>
+    /// Creer le vecteur de mouvement demande
+    /// </summary>
+    private void MoveVectorCreator()
+    {
         if (Mathf.Abs(touchAngle) <= 45) moveVector = Vector3.right; //Si on est vers la droite du joueur, on va a droite
         else if (Mathf.Abs(touchAngle) >= 135) moveVector = Vector3.left; //Si on est vers la gauche du joueur, on va a gauche
         else if (touchAngle > 0) moveVector = Vector3.up; //Si on est au dessus du joueur, on va vers le haut
         else moveVector = Vector3.down; //Si on est en dessous du joueur, on va vers le bas
+    }
 
-        //On applique notre mouvement prevu
-        transform.position += moveVector;
+    /// <summary>
+    /// Verifie la validite du mouvement puis l'applique
+    /// </summary>
+    private void MovePlayer()
+    {
+        if (gameMaster.AuthorizeMovement(transform.position + moveVector))
+        {
+            transform.position += moveVector;
+            gameMaster.EndLevelChecker();
+        }
     }
 }
