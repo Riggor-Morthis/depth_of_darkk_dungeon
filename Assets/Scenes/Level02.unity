@@ -251,9 +251,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelWidth: 5
   levelHeight: 5
+  holesInTheFloor: []
   playerPosition: {x: 2, y: -2}
   endPosition: {x: -2, y: 2}
-  nextLevel: Level01
+  nextLevel: Level03
   playerKnight: {fileID: 5881060923175236226}
   tilePrefab: {fileID: 3293928215325189452, guid: a8a2696b34f5d70428dc53fcf4a2fc86, type: 3}
 --- !u!1001 &5881060923175236225
