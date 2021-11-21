@@ -5,12 +5,24 @@ using UnityEngine;
 public class PlayerKnightScript : AEntity
 {
     //Private
+    CameraScript mainCamera; //La camera du jeu, qui doit suivre le joueur
     bool inputPossible = false; //Indiquer si les inputs joueurs sont actuellement autorises ou non
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
     float touchAngle; //L'angle entre les "pieds" du joueur et l'endroit ou on a touche
     Vector3 moveVector; //Le vecteur de notre mouvement
     int isMovementPossible; //Pour stocker la reponse du game master par rapport au mouvement demande
     GameObject target; //L'ennemi qu'on essaye de toucher(si il y en a un)
+
+    /// <summary>
+    /// Cree l'entite de la bonne face
+    /// </summary>
+    /// <param name="start">position de depart du joueur</param>
+    override public void Initialize(Vector2 start)
+    {
+        base.Initialize(start);
+        mainCamera = GameObject.Find("MainCamera").GetComponent<CameraScript>();
+        mainCamera.SetCamera(transform.position.y);
+    }
 
     //On recupere la ou le joueur appuie, et on interprete alors l'ordre correspondant
     private void Update()
@@ -54,6 +66,7 @@ public class PlayerKnightScript : AEntity
         {
             transform.position += moveVector;
             CheckRenderingOrder();
+            mainCamera.PushCamera(transform.position.y);
         }
         if (isMovementPossible > 0)
         {

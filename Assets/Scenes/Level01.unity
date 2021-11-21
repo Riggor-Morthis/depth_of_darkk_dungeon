@@ -134,8 +134,9 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420030}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: MainCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -149,6 +150,18 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!114 &519420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc534b7ae3957f9419300c892b55d67f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -251,11 +264,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelWidth: 5
   levelHeight: 5
+  holesInTheFloor: []
+  enemyPositions: []
   playerPosition: {x: 0, y: -2}
   endPosition: {x: 0, y: 2}
   nextLevel: Level02
   playerKnight: {fileID: 5881060923175236226}
   tilePrefab: {fileID: 3293928215325189452, guid: a8a2696b34f5d70428dc53fcf4a2fc86, type: 3}
+  enemyPrefab: {fileID: 0}
 --- !u!1001 &5881060923175236225
 PrefabInstance:
   m_ObjectHideFlags: 0
