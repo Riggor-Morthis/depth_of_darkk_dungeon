@@ -25,6 +25,7 @@ public class GameMasterScript : MonoBehaviour
     Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
     List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
+    List<GameObject> tempEnemies; // Durant la phase d'action, des ennemis peuvent etre tue via friendly fire. Cette liste permet d'eviter les erreurs
     List<Vector2> casesPassees, casesEnCours, casesFutures, voisinsVises; //Utilisees pour l'algorithme d'attribution de distance, pour stocker les traitements
     int manhattanDistance; //Aussi utilise pour l'attribution de distance
     int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
@@ -126,7 +127,8 @@ public class GameMasterScript : MonoBehaviour
     void EnemyPlacer()
     {
         enemies = new List<GameObject>();
-        foreach(Vector2 enemyPosition in enemyPositions)
+        tempEnemies = new List<GameObject>();
+        foreach (Vector2 enemyPosition in enemyPositions)
         {
             enemies.Add(Instantiate(enemyPrefab));
             enemies.Last().GetComponent<AEnemy>().Initialize(enemyPosition);
@@ -184,7 +186,11 @@ public class GameMasterScript : MonoBehaviour
     public void NewLoop()
     {
         CheckSceneEnd();
-        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().Action();
+        tempEnemies.Clear();
+
+        foreach (GameObject enemy in enemies) tempEnemies.Add(enemy);
+        foreach(GameObject tempEnemy in tempEnemies) if(enemies.Contains(tempEnemy)) tempEnemy.GetComponent<AEnemy>().Action();
+
         GridReset();
         //Repetition de la premiere boucle
         DistanceAssignment();
@@ -216,12 +222,15 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     /// <param name="x">coordonne x de la case de destination</param>
     /// <param name="y">coordonne y de la case de destination</param>
-    /// <returns>0 si le mouvement est impossible, 1 si il est possible, 2 si il est possible mais bloquer par un ennemi</returns>
+    /// <returns>-1 si le mouvement est en dehors du niveau
+    ///          0 si le mouvement est au dessus d'un trou
+    ///          1 si le mouvement est libre
+    ///          2 si le mouvement est sur une entite</returns>
     public int AuthorizeMovement(int x, int y)
     {
         //On check les bordures de base
-        if (x < startX || x > startX + levelWidth - 1) return 0;
-        if (y < startY || y > startY + levelHeight - 1) return 0;
+        if (x < startX || x > startX + levelWidth - 1) return -1;
+        if (y < startY || y > startY + levelHeight - 1) return -1;
 
         //On check les trous
         if (dungeonGrid[x - startX, y - startY] == null) return 0;

@@ -7,6 +7,7 @@ public class TileScript : MonoBehaviour
     //Private
     int coordX, coordY; //Les coordonnees de notre tile
     Color colour; //La couleur de notre tile
+    Color tempColor; //La couleur de notre tile lorsqu'un ennemi declare ses intentions dessus
     SpriteRenderer spriteRenderer; //Le component du sprite
     bool altered; //Est-ce que la couleur n'est pas la couleur de base ?
     List<Vector2> voisins; //La liste des coordonnes des voisins
@@ -40,8 +41,20 @@ public class TileScript : MonoBehaviour
     /// <param name="color">la nouvelle couleur a mettre</param>
     public void ChangeColor(Color color)
     {
-        spriteRenderer.color = color;
-        altered = true;
+        if (!altered)
+        {
+            tempColor = color;
+            altered = true;
+        }
+        //Une intention existe deja sur cette case, on va donc modifier la couleur de l'intention pour refleter les multiples intentions
+        else
+        {
+            tempColor.b = Mathf.Max(0f, tempColor.b - 0.1f);
+            //Plus de rouge que de vert ? C'est une attaque qui est declare
+            if (color.r > color.g) tempColor.g = Mathf.Max(0f, tempColor.g - 0.1f);
+            else tempColor.r = Mathf.Max(0f, tempColor.r - 0.1f);
+        }
+        spriteRenderer.color = tempColor;
     }
 
     /// <summary>

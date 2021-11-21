@@ -53,6 +53,7 @@
     <UnityVersion>2020.3.20f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Entities\MeleeSkeletonScript.cs" />
     <Compile Include="Assets\Scripts\Camera\CameraScript.cs" />
     <Compile Include="Assets\Scripts\Entities\AEnemy.cs" />
     <Compile Include="Assets\Scripts\Entities\PlayerKnightScript.cs" />
@@ -60,7 +61,7 @@
     <Compile Include="Assets\Scripts\Game\GameMasterScript.cs" />
     <Compile Include="Assets\Scripts\Entities\DummyScript.cs" />
     <Compile Include="Assets\Scripts\Environment\TileScript.cs" />
-    <Compile Include="Assets\Scripts\Entities\MeleeSkeletonScript.cs" />
+    <Compile Include="Assets\Scripts\Entities\RangedSkeletonScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
