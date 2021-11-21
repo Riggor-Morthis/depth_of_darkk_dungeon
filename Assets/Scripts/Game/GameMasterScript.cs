@@ -25,6 +25,9 @@ public class GameMasterScript : MonoBehaviour
     Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
     List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
+    List<Vector2> casesPassees, casesEnCours, casesFutures, voisinsVises; //Utilisees pour l'algorithme d'attribution de distance, pour stocker les traitements
+    int manhattanDistance; //Aussi utilise pour l'attribution de distance
+    int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
 
 
     /// <summary>
@@ -33,6 +36,7 @@ public class GameMasterScript : MonoBehaviour
     void Start()
     {
         AspectRatioCalculator();
+        PathFinderInitializer();
         Begin();
         FirstLoop();
     }
@@ -46,11 +50,23 @@ public class GameMasterScript : MonoBehaviour
     }
 
     /// <summary>
+    /// Juste pour initialiser nos differentes listes pour les distances de manhattan
+    /// </summary>
+    void PathFinderInitializer()
+    {
+        casesPassees = new List<Vector2>();
+        casesEnCours = new List<Vector2>();
+        casesFutures = new List<Vector2>();
+        voisinsVises = new List<Vector2>();
+    }
+
+    /// <summary>
     /// La fonction utilise pour (re)initialiser la scence
     /// </summary>
     void Begin()
     {
         FloorBuilder();
+        NeighBorCreator();
         PlayerPlacer();
         EnemyPlacer();
     }
@@ -80,6 +96,20 @@ public class GameMasterScript : MonoBehaviour
     }
 
     /// <summary>
+    /// Attribut a chaque case les coordonnees de ses voisins
+    /// </summary>
+    void NeighBorCreator()
+    {
+        for(int i = 0; i < levelWidth; i++) for(int j = 0; j < levelHeight; j++)
+            {
+                if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
+                if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
+                if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
+                if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
+            }
+    }
+
+    /// <summary>
     /// Place le joueur a l'endroit demande
     /// </summary>
     void PlayerPlacer()
@@ -105,8 +135,57 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void FirstLoop()
     {
+        DistanceAssignment();
         foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
-        //MonstreInterface
+        playerKnight.AllowMovement();
+    }
+
+    /// <summary>
+    /// Donne a chaque case un entier, qui represente sa distance avec le joueur (distance Manhattan)
+    /// </summary>
+    void DistanceAssignment()
+    {
+        casesEnCours.Add(new Vector2(playerKnight.transform.position.x - startX, playerKnight.transform.position.y - startY));
+        manhattanDistance = 0;
+        casesPassees.Clear();
+
+        //Tant qu'on trouve des cases futures, on a pas fait le tour donc on continue
+        do
+        {
+            //On inspecte nos cases a inspecter
+            foreach(Vector2 coordonnees in casesEnCours)
+            {
+                //On commence par leur donner leur distance
+                dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().setDistance(manhattanDistance);
+                //On recupere les voisins de la case en cours
+                voisinsVises = dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().getNeighbors();
+                //On les inspecte a leur tour, ne gardant que les voisins non null qu'on a pas deja visite
+                foreach (Vector2 voisin in voisinsVises) if (!casesPassees.Contains(voisin) && !casesFutures.Contains(voisin) && dungeonGrid[(int)voisin.x, (int)voisin.y] != null) casesFutures.Add(voisin);
+            }
+            //On incremente enfin notre distance apres notre boucle
+            manhattanDistance++;
+
+            //On rajoute les cases qu'on vient de traiter dans la liste du deja fait, et on s'approprie les cases futures
+            foreach (Vector2 caseencours in casesEnCours) casesPassees.Add(caseencours);
+            casesEnCours.Clear();
+            foreach (Vector2 casefuture in casesFutures) casesEnCours.Add(casefuture);
+            casesFutures.Clear();
+
+        //On s'arrete lorsqu'il n'y a plus de cases a traiter
+        } while (casesEnCours.Count != 0);
+    }
+
+    /// <summary>
+    /// Une boucle de jeu complete, qui se termine avec le joueur reprennant la main
+    /// </summary>
+    public void NewLoop()
+    {
+        CheckSceneEnd();
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().Action();
+        GridReset();
+        //Repetition de la premiere boucle
+        DistanceAssignment();
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
         playerKnight.AllowMovement();
     }
 
@@ -123,23 +202,10 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void GridReset()
     {
-        for(int i = 0; i < levelWidth; i++) for(int j = 0; j< levelHeight; j++)
+        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
             {
-                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().resetColor();
+                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().ResetColor();
             }
-    }
-
-    /// <summary>
-    /// Une boucle de jeu complete, qui se termine avec le joueur reprennant la main
-    /// </summary>
-    public void NewLoop()
-    {
-        CheckSceneEnd();
-        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().Action();
-        GridReset();
-        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
-        //MonstreInterface
-        playerKnight.AllowMovement();
     }
 
     /// <summary>
@@ -179,9 +245,10 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     /// <param name="vec">La case qu'on veut interroger</param>
     /// <returns>null si il y a personne, ou un gameobject si il y a quelqu'un ici</returns>
-    public GameObject GetEnemy(Vector2 vec)
+    public GameObject GetEntity(Vector2 vec)
     {
-        foreach (GameObject enemy in enemies) if ((Vector2)enemy.transform.position == vec) return enemy;
+        if ((Vector2)playerKnight.transform.position == vec) return playerKnight.gameObject;
+        else foreach (GameObject enemy in enemies) if ((Vector2)enemy.transform.position == vec) return enemy;
         return null;
     }
 
@@ -204,8 +271,8 @@ public class GameMasterScript : MonoBehaviour
     {
         if(dungeonGrid[x - startX, y - startY] != null)
         {
-            if (!intentionAttaque) dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().changeColor(mobIntentions[0]);
-            else dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().changeColor(mobIntentions[1]);
+            if (!intentionAttaque) dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().ChangeColor(mobIntentions[0]);
+            else dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().ChangeColor(mobIntentions[1]);
         }
     }
 
@@ -216,10 +283,39 @@ public class GameMasterScript : MonoBehaviour
     public Vector3 getPlayerPosition() => playerKnight.transform.position;
 
     /// <summary>
-    /// Renvoit le gameObject joueur pour que les monstres puissent l'endommager
+    /// Utilise par les monstres pour savoir quel mouvement les rapprochera le plus du joueur
     /// </summary>
-    /// <returns>le gameobject joueur</returns>
-    public GameObject getPlayer() => playerKnight.gameObject;
+    /// <param name="coordonnees">Les coordonnes actuelles du monstre</param>
+    /// <returns>Les coordonnees a viser</returns>
+    public Vector2 PathFinding(Vector2 coordonnees)
+    {
+        coordonnees.x -= startX;
+        coordonnees.y -= startY;
+
+        //On s'initialise en trouvant les voisins, la distance a battre est la distance qui nous separe du joueur actuellement
+        voisinsVises = dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().getNeighbors();
+        distanceMin = dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().getDistance();
+        foreach(Vector2 voisin in voisinsVises)
+        {
+            //Si la distance est clairement meilleure on prend
+            if (dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance() < distanceMin)
+            {
+                distanceMin = dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance();
+                coordonnees = voisin;
+            }
+            //Si la distance est equivalente, une chance sur deux de prendre
+            else if (dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance() == distanceMin && Random.value < 0.5f)
+            {
+                distanceMin = dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance();
+                coordonnees = voisin;
+            }
+        }
+
+        coordonnees.x += startX;
+        coordonnees.y += startY;
+
+        return coordonnees;
+    }
 
     /// <summary>
     /// Permet de recharger la scene actuelle pour recommencer

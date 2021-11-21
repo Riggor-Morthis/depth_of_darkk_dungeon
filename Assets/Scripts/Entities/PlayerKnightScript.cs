@@ -72,8 +72,8 @@ public class PlayerKnightScript : AEntity
         }
         if (isMovementPossible > 0)
         {
-            target = gameMaster.GetEnemy(transform.position + moveVector);
-            if (target != null) target.GetComponent<AEnemy>().getHurt(moveVector);
+            target = gameMaster.GetEntity(transform.position + moveVector);
+            if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
             gameMaster.NewLoop();
         }
         else inputPossible = true;

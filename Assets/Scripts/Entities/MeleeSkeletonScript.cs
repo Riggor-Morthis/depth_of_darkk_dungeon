@@ -5,35 +5,32 @@ using UnityEngine;
 public class MeleeSkeletonScript : AEnemy
 {
     //Private
-    Vector3 player; //La ou on stocke la position du joueur
     float distanceJoueur; //La distance qui nous separe du joueur
     Vector2 nextMove; //La ou l'ennemi va aller/attaquer la prochaine fois
     bool intentionAttaque; //Est-ce que le monstre compte nous attaquer, ou non ?
+    GameObject target; //Le truc qu'on essaye de toucher
 
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
     /// </summary>
     public override void PathFinding()
     {
-        player = gameMaster.getPlayerPosition();
-        nextMove = player - transform.position;
-        if(Mathf.Abs(nextMove.x) >= Mathf.Abs(nextMove.y)) //On a plus de mouvement en X donc on va en (+-1, 0)
-        {
-            if (nextMove.x > 0) nextMove = Vector2.right; //x positif
-            else nextMove = Vector2.left; //x negatif
-        }
-        else
-        {
-            if (nextMove.y > 0) nextMove = Vector2.up;
-            else nextMove = Vector2.down;
-        }
+        //On commence par obtenir la meilleure case a atteindre
+        nextMove = gameMaster.PathFinding((Vector2)transform.position);
+        //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
+        nextMove.x = Mathf.Round(nextMove.x - transform.position.x);
+        nextMove.y = Mathf.Round(nextMove.y - transform.position.y);
 
-        distanceJoueur = Vector3.Distance(transform.position, player);
+        //Ensuite, on recupere la distance au joueur
+        distanceJoueur = Vector3.Distance(transform.position, gameMaster.getPlayerPosition());
+
+        //Fort de cette information, on l'utilise pour determiner une strategie
         if (distanceJoueur <= 1.1f) intentionAttaque = true;
         else if (distanceJoueur <= 2.1) if (Random.value <= 0.5f) intentionAttaque = true; else intentionAttaque = false;
         else if (distanceJoueur <= 3.1) if (Random.value <= 1 / 3f) intentionAttaque = true; else intentionAttaque = false;
         else intentionAttaque = false;
 
+        //On indique nos intentions sur le plateau
         gameMaster.EnemyIntention((int)((Vector2)transform.position + nextMove).x, (int)((Vector2)transform.position + nextMove).y, intentionAttaque);
     }
 
@@ -48,7 +45,8 @@ public class MeleeSkeletonScript : AEnemy
         }
         else
         {
-            if (gameMaster.getPlayerPosition() == transform.position + (Vector3)nextMove) gameMaster.getPlayer().GetComponent<PlayerKnightScript>().getHurt(nextMove);
+            target = gameMaster.GetEntity((Vector2)transform.position + nextMove);
+            if (target != null) target.GetComponent<AEntity>().getHurt(nextMove);
         }
     }
 }
