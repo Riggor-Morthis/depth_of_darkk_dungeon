@@ -7,15 +7,18 @@ using UnityEngine.SceneManagement;
 public class GameMasterScript : MonoBehaviour
 {
     //Public
+    public bool Floor13; //Est-ce qu'on est a l'etage infini ?
     public int levelWidth, levelHeight; //Les dimensions de notre dongeon en terme de nombre de tuiles
     public List<Vector2> holesInTheFloor; //La ou il n'y a pas de sol dans notre niveau
     public List<Vector2> enemyPositions; //La ou on va mettre nos ennemis
+    public List<Vector2> treasures; //Les 3 tresors dans la salle
     public Vector2 playerPosition; //La position du joueur au debut du niveau
     public Vector2 endPosition; //La position de la tuile de fin de niveau
     public string nextLevel; //Le nom de la scene suivante
     public PlayerKnightScript playerKnight; //Le gameObject du joueur
     public GameObject tilePrefab; //Pour stocker le prefab de la tuile
     public GameObject enemyPrefab; //Pour stocker le prefab de l'ennemi
+    public GameObject secondEnemyPrefab; //L'autre prefab ennemi, pour le niveau 13
 
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
@@ -23,6 +26,7 @@ public class GameMasterScript : MonoBehaviour
     Color[] colors = new Color[2] { new Color(173f / 255, 199f / 255, 204f / 255), new Color(145f / 255, 170f / 255, 194f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
     Color endTile = new Color(161f / 255, 188f / 255, 201f / 255); //La couleur utilise par la tuile de fin de niveau
     Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
+    Color treasure = new Color(217f / 255, 217f / 255, 126f / 255); //La couleur utilisee pour montrer les tuiles avec un tresor
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
     List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
     List<GameObject> tempEnemies; // Durant la phase d'action, des ennemis peuvent etre tue via friendly fire. Cette liste permet d'eviter les erreurs
@@ -30,16 +34,33 @@ public class GameMasterScript : MonoBehaviour
     int manhattanDistance; //Aussi utilise pour l'attribution de distance
     int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
 
-
     /// <summary>
     /// Appeler au debut de la scene, pour tout initialiser
     /// </summary>
     void Start()
     {
+        if (Floor13) RessourcesAppropriator();
         AspectRatioCalculator();
         PathFinderInitializer();
         Begin();
         FirstLoop();
+    }
+
+    /// <summary>
+    /// Vole les variables statiques de la classe faite pour ca
+    /// </summary>
+    void RessourcesAppropriator()
+    {
+        //On commence par demander une generation du niveau, si on a gagne precedemment
+        if(GameMasterRessources.weWon) GameMasterRessources.Floor13Generator();
+        //On vole mainteant les ressources du nouveau niveau
+        levelWidth = GameMasterRessources.levelWidth;
+        levelHeight = GameMasterRessources.levelHeight;
+        playerPosition = GameMasterRessources.playerPosition;
+        endPosition = GameMasterRessources.endPosition;
+        holesInTheFloor = GameMasterRessources.holesInTheFloor;
+        enemyPositions = GameMasterRessources.enemyPositions;
+        treasures = GameMasterRessources.treasures;
     }
 
     /// <summary>
@@ -91,6 +112,7 @@ public class GameMasterScript : MonoBehaviour
                     dungeonGrid[i, j] = Instantiate(tilePrefab);
                     pairImpair = (i + j) % 2;
                     if (tempX == endPosition.x && tempY == endPosition.y) dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, endTile);
+                    else if(treasures.Contains(new Vector2(tempX, tempY))) dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, treasure);
                     else dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
                 }
             }
@@ -103,12 +125,16 @@ public class GameMasterScript : MonoBehaviour
     {
         for(int i = 0; i < levelWidth; i++) for(int j = 0; j < levelHeight; j++)
             {
-                if(dungeonGrid[i, j] != null)
+                if (dungeonGrid[i, j] != null)
                 {
-                    if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
-                    if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
-                    if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
-                    if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
+                    if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null && !treasures.Contains(new Vector2(i - 1 + startX, j + startY)))
+                        dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
+                    if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null && !treasures.Contains(new Vector2(i + 1 + startX, j + startY)))
+                        dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
+                    if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null && !treasures.Contains(new Vector2(i + startX, j - 1 + startY)))
+                        dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
+                    if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null && !treasures.Contains(new Vector2(i + startX, j + 1 + startY)))
+                        dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
                 }
             }
     }
@@ -128,10 +154,20 @@ public class GameMasterScript : MonoBehaviour
     {
         enemies = new List<GameObject>();
         tempEnemies = new List<GameObject>();
-        foreach (Vector2 enemyPosition in enemyPositions)
+        for(int i = 0; i < enemyPositions.Count; i++)
         {
-            enemies.Add(Instantiate(enemyPrefab));
-            enemies.Last().GetComponent<AEnemy>().Initialize(enemyPosition);
+            //Si on est pas au niveau 13, on a qu'un seul type d'ennemi
+            if (!Floor13)
+            {
+                enemies.Add(Instantiate(enemyPrefab));
+            }
+            //Si on est au niveau 13, un ennemi sur trois est a distance
+            else
+            {
+                if (i % 3 == 0) enemies.Add(Instantiate(secondEnemyPrefab));
+                else enemies.Add(Instantiate(enemyPrefab));
+            }
+            enemies.Last().GetComponent<AEnemy>().Initialize(enemyPositions[i]);
         }
     }
     
@@ -190,6 +226,7 @@ public class GameMasterScript : MonoBehaviour
 
         foreach (GameObject enemy in enemies) tempEnemies.Add(enemy);
         foreach(GameObject tempEnemy in tempEnemies) if(enemies.Contains(tempEnemy)) tempEnemy.GetComponent<AEnemy>().Action();
+        tempEnemies.Clear();
 
         GridReset();
         //Repetition de la premiere boucle
@@ -203,7 +240,11 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void CheckSceneEnd()
     {
-        if ((Vector2)playerKnight.transform.position == endPosition) SceneManager.LoadScene(nextLevel);
+        if ((Vector2)playerKnight.transform.position == endPosition)
+        {
+            GameMasterRessources.weWon = true;
+            SceneManager.LoadScene(nextLevel);
+        }
     }
 
     /// <summary>

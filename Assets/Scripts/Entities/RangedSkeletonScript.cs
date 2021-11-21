@@ -48,8 +48,8 @@ public class RangedSkeletonScript : AEnemy
             //On commence par obtenir la meilleure case a atteindre
             nextMove = gameMaster.PathFinding((Vector2)transform.position);
             //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
-            nextMove.x = Mathf.Round(nextMove.x - transform.position.x);
-            nextMove.y = Mathf.Round(nextMove.y - transform.position.y);
+            nextMove.x = Mathf.RoundToInt(nextMove.x - transform.position.x);
+            nextMove.y = Mathf.RoundToInt(nextMove.y - transform.position.y);
             //On indique nos intentions sur le plateau
             gameMaster.EnemyIntention((int)((Vector2)transform.position + nextMove).x, (int)((Vector2)transform.position + nextMove).y, intentionAttaque);
         }

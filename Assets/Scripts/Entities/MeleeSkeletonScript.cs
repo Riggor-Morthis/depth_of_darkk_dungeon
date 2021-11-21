@@ -18,8 +18,8 @@ public class MeleeSkeletonScript : AEnemy
         //On commence par obtenir la meilleure case a atteindre
         nextMove = gameMaster.PathFinding((Vector2)transform.position);
         //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
-        nextMove.x = Mathf.Round(nextMove.x - transform.position.x);
-        nextMove.y = Mathf.Round(nextMove.y - transform.position.y);
+        nextMove.x = Mathf.RoundToInt(nextMove.x - transform.position.x);
+        nextMove.y = Mathf.RoundToInt(nextMove.y - transform.position.y);
 
         //Ensuite, on recupere la distance au joueur
         distanceJoueur = Vector3.Distance(transform.position, gameMaster.getPlayerPosition());
