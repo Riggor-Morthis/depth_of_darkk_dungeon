@@ -20,11 +20,10 @@ public class GameMasterScript : MonoBehaviour
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
-    GameObject currentPrefab; //Le prefab qu'on vient d'instancier
     Color[] colors = new Color[2] { new Color(145f / 255, 205f / 255, 220f / 255), new Color(105f / 255, 165f / 255, 180f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
-    Color endTile = new Color(125f / 255, 185f / 255, 200f / 255);
+    Color endTile = new Color(125f / 255, 185f / 255, 200f / 255); //La couleur utilise par la tuile de fin de niveau
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
-    List<GameObject> enemies;// La liste de tous les ennemis actuellement presents dans le niveau
+    List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
 
 
     /// <summary>
@@ -32,7 +31,17 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void Start()
     {
+        AspectRatioCalculator();
         Begin();
+        FirstLoop();
+    }
+
+    /// <summary>
+    /// Calcule la composante hauteur de la camera pour accueillir le niveau de maniere optimale
+    /// </summary>
+    void AspectRatioCalculator()
+    {
+        Camera.main.orthographicSize = Mathf.Max((levelHeight/2f) + 0.2f, (((levelWidth / 2f) + 0.2f)/ Screen.width) * Screen.height);
     }
 
     /// <summary>
@@ -89,6 +98,48 @@ public class GameMasterScript : MonoBehaviour
             enemies.Last().GetComponent<DummyScript>().Initialize(enemyPosition);
         }
     }
+    
+    /// <summary>
+    /// Le premier loop du jeu, jusqu'a ce que le joueur reprenne la main
+    /// </summary>
+    void FirstLoop()
+    {
+        //MonstrePathFinding
+        //MonstreInterface
+        playerKnight.AllowMovement();
+    }
+
+    /// <summary>
+    /// Declenche la nouvelle scene si le joueur atteint la fin du niveau
+    /// </summary>
+    void CheckSceneEnd()
+    {
+        if ((Vector2)playerKnight.transform.position == endPosition) SceneManager.LoadScene(nextLevel);
+    }
+
+    /// <summary>
+    /// Utilisee pour remettre a zero toutes les tuiles de la grille (niveau couleur)
+    /// </summary>
+    void GridReset()
+    {
+        for(int i = 0; i < levelWidth; i++) for(int j = 0; j< levelHeight; j++)
+            {
+                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().resetColor();
+            }
+    }
+
+    /// <summary>
+    /// Une boucle de jeu complete, qui se termine avec le joueur reprennant la main
+    /// </summary>
+    public void NewLoop()
+    {
+        CheckSceneEnd();
+        //MonstreActions
+        GridReset();
+        //MonstrePathFinding
+        //MonstreInterface
+        playerKnight.AllowMovement();
+    }
 
     /// <summary>
     /// Indique si le mouvement est possible, invalide a cause du vide, ou invalide a cause d'un ennemi
@@ -131,14 +182,6 @@ public class GameMasterScript : MonoBehaviour
     {
         foreach (GameObject enemy in enemies) if ((Vector2)enemy.transform.position == vec) return enemy;
         return null;
-    }
-
-    /// <summary>
-    /// Regarde si on a atteint la tuile de fin de niveau ou pas
-    /// </summary>
-    public void EndLevelChecker()
-    {
-        if ((Vector2)playerKnight.transform.position == endPosition) SceneManager.LoadScene(nextLevel);
     }
 
     /// <summary>

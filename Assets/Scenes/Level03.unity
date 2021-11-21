@@ -261,11 +261,13 @@ MonoBehaviour:
   - {x: 1, y: -1}
   - {x: 1, y: 0}
   - {x: 1, y: 1}
+  enemyPositions: []
   playerPosition: {x: 2, y: -2}
   endPosition: {x: -2, y: 2}
-  nextLevel: Level01
+  nextLevel: Level04
   playerKnight: {fileID: 5881060923175236226}
   tilePrefab: {fileID: 3293928215325189452, guid: a8a2696b34f5d70428dc53fcf4a2fc86, type: 3}
+  enemyPrefab: {fileID: 0}
 --- !u!1001 &5881060923175236225
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerKnightScript : AEntity
 {
     //Private
-    bool InputPossible = true; //Indiquer si les inputs joueurs sont actuellement autorises ou non
+    bool inputPossible = false; //Indiquer si les inputs joueurs sont actuellement autorises ou non
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
     float touchAngle; //L'angle entre les "pieds" du joueur et l'endroit ou on a touche
     Vector3 moveVector; //Le vecteur de notre mouvement
@@ -15,8 +15,9 @@ public class PlayerKnightScript : AEntity
     //On recupere la ou le joueur appuie, et on interprete alors l'ordre correspondant
     private void Update()
     {
-        if (InputPossible && Input.GetMouseButtonDown(0))
+        if (inputPossible && Input.GetMouseButtonDown(0))
         {
+            inputPossible = false;
             GetInput();
             MoveVectorCreator();
             MovePlayer();
@@ -53,13 +54,19 @@ public class PlayerKnightScript : AEntity
         {
             transform.position += moveVector;
             CheckRenderingOrder();
-            gameMaster.EndLevelChecker();
         }
         if (isMovementPossible > 0)
         {
             target = gameMaster.GetEnemy(transform.position + moveVector);
             if (target != null) target.GetComponent<AEnemy>().getHurt();
+            gameMaster.NewLoop();
         }
+        else inputPossible = true;
+    }
+
+    public void AllowMovement()
+    {
+        inputPossible = true;
     }
 
     public override void getHurt()
