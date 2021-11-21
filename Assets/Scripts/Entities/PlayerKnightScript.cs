@@ -5,18 +5,33 @@ using UnityEngine;
 public class PlayerKnightScript : AEntity
 {
     //Private
-    bool InputPossible = true; //Indiquer si les inputs joueurs sont actuellement autorises ou non
+    CameraScript mainCamera; //La camera du jeu, qui doit suivre le joueur
+    bool inputPossible = false; //Indiquer si les inputs joueurs sont actuellement autorises ou non
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
     float touchAngle; //L'angle entre les "pieds" du joueur et l'endroit ou on a touche
     Vector3 moveVector; //Le vecteur de notre mouvement
     int isMovementPossible; //Pour stocker la reponse du game master par rapport au mouvement demande
     GameObject target; //L'ennemi qu'on essaye de toucher(si il y en a un)
+    bool Helmet; //Est-ce que le joueur possede un Heaume ou non. Si il a un Heaume, il ne prend pas de degats mais il perd le Heaume
+
+    /// <summary>
+    /// Cree l'entite de la bonne face
+    /// </summary>
+    /// <param name="start">position de depart du joueur</param>
+    override public void Initialize(Vector2 start)
+    {
+        base.Initialize(start);
+        mainCamera = GameObject.Find("MainCamera").GetComponent<CameraScript>();
+        //mainCamera.SetCamera(transform.position.y);
+        Helmet = true;
+    }
 
     //On recupere la ou le joueur appuie, et on interprete alors l'ordre correspondant
     private void Update()
     {
-        if (InputPossible && Input.GetMouseButtonDown(0))
+        if (inputPossible && Input.GetMouseButtonDown(0))
         {
+            inputPossible = false;
             GetInput();
             MoveVectorCreator();
             MovePlayer();
@@ -53,17 +68,37 @@ public class PlayerKnightScript : AEntity
         {
             transform.position += moveVector;
             CheckRenderingOrder();
-            gameMaster.EndLevelChecker();
+            //mainCamera.PushCamera(transform.position.y);
         }
         if (isMovementPossible > 0)
         {
-            target = gameMaster.GetEnemy(transform.position + moveVector);
-            if (target != null) target.GetComponent<AEnemy>().getHurt();
+            target = gameMaster.GetEntity(transform.position + moveVector);
+            if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
+            gameMaster.NewLoop();
         }
+        else inputPossible = true;
     }
 
-    public override void getHurt()
+    /// <summary>
+    /// Pour que le gamemaster nous donne la permission d'agir
+    /// </summary>
+    public void AllowMovement()
     {
-        //Rien pour le moment
+        inputPossible = true;
+    }
+
+    /// <summary>
+    /// Ce qu'il se passe lorsqu'on est attaque
+    /// </summary>
+    public override void getHurt(Vector2 attackDirection)
+    {
+        //Il ne faut que le monstre attaque de face si il veut nous faire des degats
+        if(!(attackDirection == -(Vector2)moveVector))
+        {
+            //Si on a un Heaume, pas de degats
+            if (Helmet) Helmet = false;
+            //Sinon, on a perdu
+            else gameMaster.ReloadScene();
+        }
     }
 }

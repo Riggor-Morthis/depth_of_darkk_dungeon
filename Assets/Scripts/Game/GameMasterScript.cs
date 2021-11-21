@@ -20,11 +20,15 @@ public class GameMasterScript : MonoBehaviour
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
-    GameObject currentPrefab; //Le prefab qu'on vient d'instancier
-    Color[] colors = new Color[2] { new Color(145f / 255, 205f / 255, 220f / 255), new Color(105f / 255, 165f / 255, 180f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
-    Color endTile = new Color(125f / 255, 185f / 255, 200f / 255);
+    Color[] colors = new Color[2] { new Color(173f / 255, 199f / 255, 204f / 255), new Color(145f / 255, 170f / 255, 194f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
+    Color endTile = new Color(161f / 255, 188f / 255, 201f / 255); //La couleur utilise par la tuile de fin de niveau
+    Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
-    List<GameObject> enemies;// La liste de tous les ennemis actuellement presents dans le niveau
+    List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
+    List<GameObject> tempEnemies; // Durant la phase d'action, des ennemis peuvent etre tue via friendly fire. Cette liste permet d'eviter les erreurs
+    List<Vector2> casesPassees, casesEnCours, casesFutures, voisinsVises; //Utilisees pour l'algorithme d'attribution de distance, pour stocker les traitements
+    int manhattanDistance; //Aussi utilise pour l'attribution de distance
+    int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
 
 
     /// <summary>
@@ -32,7 +36,29 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void Start()
     {
+        AspectRatioCalculator();
+        PathFinderInitializer();
         Begin();
+        FirstLoop();
+    }
+
+    /// <summary>
+    /// Calcule la composante hauteur de la camera pour accueillir le niveau de maniere optimale
+    /// </summary>
+    void AspectRatioCalculator()
+    {
+        Camera.main.orthographicSize = Mathf.Max(levelHeight/2f + 0.2f, ((levelWidth / 2f + 0.2f) / Screen.width) * Screen.height);
+    }
+
+    /// <summary>
+    /// Juste pour initialiser nos differentes listes pour les distances de manhattan
+    /// </summary>
+    void PathFinderInitializer()
+    {
+        casesPassees = new List<Vector2>();
+        casesEnCours = new List<Vector2>();
+        casesFutures = new List<Vector2>();
+        voisinsVises = new List<Vector2>();
     }
 
     /// <summary>
@@ -41,6 +67,7 @@ public class GameMasterScript : MonoBehaviour
     void Begin()
     {
         FloorBuilder();
+        NeighborCreator();
         PlayerPlacer();
         EnemyPlacer();
     }
@@ -70,6 +97,23 @@ public class GameMasterScript : MonoBehaviour
     }
 
     /// <summary>
+    /// Attribut a chaque case les coordonnees de ses voisins
+    /// </summary>
+    void NeighborCreator()
+    {
+        for(int i = 0; i < levelWidth; i++) for(int j = 0; j < levelHeight; j++)
+            {
+                if(dungeonGrid[i, j] != null)
+                {
+                    if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
+                    if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
+                    if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
+                    if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
+                }
+            }
+    }
+
+    /// <summary>
     /// Place le joueur a l'endroit demande
     /// </summary>
     void PlayerPlacer()
@@ -83,11 +127,94 @@ public class GameMasterScript : MonoBehaviour
     void EnemyPlacer()
     {
         enemies = new List<GameObject>();
-        foreach(Vector2 enemyPosition in enemyPositions)
+        tempEnemies = new List<GameObject>();
+        foreach (Vector2 enemyPosition in enemyPositions)
         {
             enemies.Add(Instantiate(enemyPrefab));
-            enemies.Last().GetComponent<DummyScript>().Initialize(enemyPosition);
+            enemies.Last().GetComponent<AEnemy>().Initialize(enemyPosition);
         }
+    }
+    
+    /// <summary>
+    /// Le premier loop du jeu, jusqu'a ce que le joueur reprenne la main
+    /// </summary>
+    void FirstLoop()
+    {
+        DistanceAssignment();
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
+        playerKnight.AllowMovement();
+    }
+
+    /// <summary>
+    /// Donne a chaque case un entier, qui represente sa distance avec le joueur (distance Manhattan)
+    /// </summary>
+    void DistanceAssignment()
+    {
+        casesEnCours.Add(new Vector2(playerKnight.transform.position.x - startX, playerKnight.transform.position.y - startY));
+        manhattanDistance = 0;
+        casesPassees.Clear();
+
+        //Tant qu'on trouve des cases futures, on a pas fait le tour donc on continue
+        do
+        {
+            //On inspecte nos cases a inspecter
+            foreach(Vector2 coordonnees in casesEnCours)
+            {
+                //On commence par leur donner leur distance
+                dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().setDistance(manhattanDistance);
+                //On recupere les voisins de la case en cours
+                voisinsVises = dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().getNeighbors();
+                //On les inspecte a leur tour, ne gardant que les voisins non null qu'on a pas deja visite
+                foreach (Vector2 voisin in voisinsVises) if (!casesPassees.Contains(voisin) && !casesFutures.Contains(voisin) && dungeonGrid[(int)voisin.x, (int)voisin.y] != null) casesFutures.Add(voisin);
+            }
+            //On incremente enfin notre distance apres notre boucle
+            manhattanDistance++;
+
+            //On rajoute les cases qu'on vient de traiter dans la liste du deja fait, et on s'approprie les cases futures
+            foreach (Vector2 caseencours in casesEnCours) casesPassees.Add(caseencours);
+            casesEnCours.Clear();
+            foreach (Vector2 casefuture in casesFutures) casesEnCours.Add(casefuture);
+            casesFutures.Clear();
+
+        //On s'arrete lorsqu'il n'y a plus de cases a traiter
+        } while (casesEnCours.Count != 0);
+    }
+
+    /// <summary>
+    /// Une boucle de jeu complete, qui se termine avec le joueur reprennant la main
+    /// </summary>
+    public void NewLoop()
+    {
+        CheckSceneEnd();
+        tempEnemies.Clear();
+
+        foreach (GameObject enemy in enemies) tempEnemies.Add(enemy);
+        foreach(GameObject tempEnemy in tempEnemies) if(enemies.Contains(tempEnemy)) tempEnemy.GetComponent<AEnemy>().Action();
+
+        GridReset();
+        //Repetition de la premiere boucle
+        DistanceAssignment();
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
+        playerKnight.AllowMovement();
+    }
+
+    /// <summary>
+    /// Declenche la nouvelle scene si le joueur atteint la fin du niveau
+    /// </summary>
+    void CheckSceneEnd()
+    {
+        if ((Vector2)playerKnight.transform.position == endPosition) SceneManager.LoadScene(nextLevel);
+    }
+
+    /// <summary>
+    /// Utilisee pour remettre a zero toutes les tuiles de la grille (niveau couleur)
+    /// </summary>
+    void GridReset()
+    {
+        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
+            {
+                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().ResetColor();
+            }
     }
 
     /// <summary>
@@ -95,12 +222,15 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     /// <param name="x">coordonne x de la case de destination</param>
     /// <param name="y">coordonne y de la case de destination</param>
-    /// <returns>0 si le mouvement est impossible, 1 si il est possible, 2 si il est possible mais bloquer par un ennemi</returns>
+    /// <returns>-1 si le mouvement est en dehors du niveau
+    ///          0 si le mouvement est au dessus d'un trou
+    ///          1 si le mouvement est libre
+    ///          2 si le mouvement est sur une entite</returns>
     public int AuthorizeMovement(int x, int y)
     {
         //On check les bordures de base
-        if (x < startX || x > startX + levelWidth - 1) return 0;
-        if (y < startY || y > startY + levelHeight - 1) return 0;
+        if (x < startX || x > startX + levelWidth - 1) return -1;
+        if (y < startY || y > startY + levelHeight - 1) return -1;
 
         //On check les trous
         if (dungeonGrid[x - startX, y - startY] == null) return 0;
@@ -127,18 +257,11 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     /// <param name="vec">La case qu'on veut interroger</param>
     /// <returns>null si il y a personne, ou un gameobject si il y a quelqu'un ici</returns>
-    public GameObject GetEnemy(Vector2 vec)
+    public GameObject GetEntity(Vector2 vec)
     {
-        foreach (GameObject enemy in enemies) if ((Vector2)enemy.transform.position == vec) return enemy;
+        if ((Vector2)playerKnight.transform.position == vec) return playerKnight.gameObject;
+        else foreach (GameObject enemy in enemies) if ((Vector2)enemy.transform.position == vec) return enemy;
         return null;
-    }
-
-    /// <summary>
-    /// Regarde si on a atteint la tuile de fin de niveau ou pas
-    /// </summary>
-    public void EndLevelChecker()
-    {
-        if ((Vector2)playerKnight.transform.position == endPosition) SceneManager.LoadScene(nextLevel);
     }
 
     /// <summary>
@@ -148,5 +271,69 @@ public class GameMasterScript : MonoBehaviour
     public void EnemyRemover(GameObject enemy)
     {
         enemies.Remove(enemy);
+    }
+
+    /// <summary>
+    /// Utilise par les monstres pour indiquer ou va leur prochain mouvement, et quel type de mouvement c'est
+    /// </summary>
+    /// <param name="x">Coordonnee en x du mouvement</param>
+    /// <param name="y">Coordonnee en y du mouvement</param>
+    /// <param name="intentionAttaque">Est-ce que l'action est une attaque ou est-ce que c'est un mouvement</param>
+    public void EnemyIntention(int x, int y, bool intentionAttaque)
+    {
+        if(dungeonGrid[x - startX, y - startY] != null)
+        {
+            if (!intentionAttaque) dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().ChangeColor(mobIntentions[0]);
+            else dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().ChangeColor(mobIntentions[1]);
+        }
+    }
+
+    /// <summary>
+    /// Renvoit la position du joueur
+    /// </summary>
+    /// <returns>Le transform.position du jouer</returns>
+    public Vector3 getPlayerPosition() => playerKnight.transform.position;
+
+    /// <summary>
+    /// Utilise par les monstres pour savoir quel mouvement les rapprochera le plus du joueur
+    /// </summary>
+    /// <param name="coordonnees">Les coordonnes actuelles du monstre</param>
+    /// <returns>Les coordonnees a viser</returns>
+    public Vector2 PathFinding(Vector2 coordonnees)
+    {
+        coordonnees.x -= startX;
+        coordonnees.y -= startY;
+
+        //On s'initialise en trouvant les voisins, la distance a battre est la distance qui nous separe du joueur actuellement
+        voisinsVises = dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().getNeighbors();
+        distanceMin = dungeonGrid[(int)coordonnees.x, (int)coordonnees.y].GetComponent<TileScript>().getDistance();
+        foreach(Vector2 voisin in voisinsVises)
+        {
+            //Si la distance est clairement meilleure on prend
+            if (dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance() < distanceMin)
+            {
+                distanceMin = dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance();
+                coordonnees = voisin;
+            }
+            //Si la distance est equivalente, une chance sur deux de prendre
+            else if (dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance() == distanceMin && Random.value < 0.5f)
+            {
+                distanceMin = dungeonGrid[(int)voisin.x, (int)voisin.y].GetComponent<TileScript>().getDistance();
+                coordonnees = voisin;
+            }
+        }
+
+        coordonnees.x += startX;
+        coordonnees.y += startY;
+
+        return coordonnees;
+    }
+
+    /// <summary>
+    /// Permet de recharger la scene actuelle pour recommencer
+    /// </summary>
+    public void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

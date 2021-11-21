@@ -11,7 +11,7 @@ public abstract class AEntity : MonoBehaviour
     SpriteRenderer spriteRenderer; //Le component du sprite
 
     /// <summary>
-    /// Modifie le rendering order du joueur en fonction de ses coordonnes en y
+    /// Modifie le rendering order de l'entite en fonction de ses coordonnes en y
     /// </summary>
     protected void CheckRenderingOrder()
     {
@@ -19,10 +19,10 @@ public abstract class AEntity : MonoBehaviour
     }
 
     /// <summary>
-    /// Cree le joueur de la bonne face
+    /// Cree l'entite de la bonne face
     /// </summary>
     /// <param name="start">position de depart du joueur</param>
-    public void Initialize(Vector2 start)
+    virtual public void Initialize(Vector2 start)
     {
         gameMaster = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
         transform.position = start;
@@ -33,5 +33,5 @@ public abstract class AEntity : MonoBehaviour
     /// <summary>
     /// Ce qu'il se passe lorsqu'on se fait toucher
     /// </summary>
-    public abstract void getHurt();
+    public abstract void getHurt(Vector2 attackDirection);
 }
