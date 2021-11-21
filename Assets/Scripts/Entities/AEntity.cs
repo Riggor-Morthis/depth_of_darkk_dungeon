@@ -33,5 +33,5 @@ public abstract class AEntity : MonoBehaviour
     /// <summary>
     /// Ce qu'il se passe lorsqu'on se fait toucher
     /// </summary>
-    public abstract void getHurt();
+    public abstract void getHurt(Vector2 attackDirection);
 }

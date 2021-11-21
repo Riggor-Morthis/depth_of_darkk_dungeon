@@ -20,8 +20,9 @@ public class GameMasterScript : MonoBehaviour
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
-    Color[] colors = new Color[2] { new Color(145f / 255, 205f / 255, 220f / 255), new Color(105f / 255, 165f / 255, 180f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
-    Color endTile = new Color(125f / 255, 185f / 255, 200f / 255); //La couleur utilise par la tuile de fin de niveau
+    Color[] colors = new Color[2] { new Color(173f / 255, 199f / 255, 204f / 255), new Color(145f / 255, 170f / 255, 194f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
+    Color endTile = new Color(161f / 255, 188f / 255, 201f / 255); //La couleur utilise par la tuile de fin de niveau
+    Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
     List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
 
@@ -41,7 +42,7 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void AspectRatioCalculator()
     {
-        Camera.main.orthographicSize = ((levelWidth / 2f + 0.2f) / Screen.width) * Screen.height;
+        Camera.main.orthographicSize = Mathf.Max(levelHeight/2f + 0.2f, ((levelWidth / 2f + 0.2f) / Screen.width) * Screen.height);
     }
 
     /// <summary>
@@ -95,7 +96,7 @@ public class GameMasterScript : MonoBehaviour
         foreach(Vector2 enemyPosition in enemyPositions)
         {
             enemies.Add(Instantiate(enemyPrefab));
-            enemies.Last().GetComponent<DummyScript>().Initialize(enemyPosition);
+            enemies.Last().GetComponent<AEnemy>().Initialize(enemyPosition);
         }
     }
     
@@ -104,7 +105,7 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void FirstLoop()
     {
-        //MonstrePathFinding
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
         //MonstreInterface
         playerKnight.AllowMovement();
     }
@@ -134,9 +135,9 @@ public class GameMasterScript : MonoBehaviour
     public void NewLoop()
     {
         CheckSceneEnd();
-        //MonstreActions
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().Action();
         GridReset();
-        //MonstrePathFinding
+        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
         //MonstreInterface
         playerKnight.AllowMovement();
     }
@@ -191,5 +192,40 @@ public class GameMasterScript : MonoBehaviour
     public void EnemyRemover(GameObject enemy)
     {
         enemies.Remove(enemy);
+    }
+
+    /// <summary>
+    /// Utilise par les monstres pour indiquer ou va leur prochain mouvement, et quel type de mouvement c'est
+    /// </summary>
+    /// <param name="x">Coordonnee en x du mouvement</param>
+    /// <param name="y">Coordonnee en y du mouvement</param>
+    /// <param name="intentionAttaque">Est-ce que l'action est une attaque ou est-ce que c'est un mouvement</param>
+    public void EnemyIntention(int x, int y, bool intentionAttaque)
+    {
+        if(dungeonGrid[x - startX, y - startY] != null)
+        {
+            if (!intentionAttaque) dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().changeColor(mobIntentions[0]);
+            else dungeonGrid[x - startX, y - startY].GetComponent<TileScript>().changeColor(mobIntentions[1]);
+        }
+    }
+
+    /// <summary>
+    /// Renvoit la position du joueur
+    /// </summary>
+    /// <returns>Le transform.position du jouer</returns>
+    public Vector3 getPlayerPosition() => playerKnight.transform.position;
+
+    /// <summary>
+    /// Renvoit le gameObject joueur pour que les monstres puissent l'endommager
+    /// </summary>
+    /// <returns>le gameobject joueur</returns>
+    public GameObject getPlayer() => playerKnight.gameObject;
+
+    /// <summary>
+    /// Permet de recharger la scene actuelle pour recommencer
+    /// </summary>
+    public void ReloadScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
