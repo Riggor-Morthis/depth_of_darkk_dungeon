@@ -66,7 +66,7 @@ public class GameMasterScript : MonoBehaviour
     void Begin()
     {
         FloorBuilder();
-        NeighBorCreator();
+        NeighborCreator();
         PlayerPlacer();
         EnemyPlacer();
     }
@@ -98,14 +98,17 @@ public class GameMasterScript : MonoBehaviour
     /// <summary>
     /// Attribut a chaque case les coordonnees de ses voisins
     /// </summary>
-    void NeighBorCreator()
+    void NeighborCreator()
     {
         for(int i = 0; i < levelWidth; i++) for(int j = 0; j < levelHeight; j++)
             {
-                if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
-                if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
-                if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
-                if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
+                if(dungeonGrid[i, j] != null)
+                {
+                    if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
+                    if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
+                    if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
+                    if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null) dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
+                }
             }
     }
 
