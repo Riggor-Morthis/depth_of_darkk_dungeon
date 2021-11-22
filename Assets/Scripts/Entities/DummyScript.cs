@@ -9,7 +9,12 @@ public class DummyScript : AEnemy
         //Lol
     }
 
-    public override void Action()
+    public new void Action()
+    {
+        gameMaster.NextSkeleton();
+    }
+
+    protected override void Attack()
     {
         //Lol
     }

@@ -8,9 +8,9 @@ public abstract class AEntity : MonoBehaviour
     public Sprite[] spriteArray; //La ou on va stocker tous les sprites de l'entite
 
     //Protected
-    protected GameMasterScript gameMaster;
+    protected GameMasterScript gameMaster; //Le maitre du jeu
     protected SpriteRenderer spriteRenderer; //Le component du sprite
-    protected int actionSpeed; //Utilisee pour les animations
+    protected float actionSpeed; //Utilisee pour les animations
 
     /// <summary>
     /// Modifie le rendering order de l'entite en fonction de ses coordonnes en y
@@ -31,6 +31,7 @@ public abstract class AEntity : MonoBehaviour
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         spriteRenderer.sprite = spriteArray[0];
         CheckRenderingOrder();
+        actionSpeed = 5f;
     }
 
     /// <summary>

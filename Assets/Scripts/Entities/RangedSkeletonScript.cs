@@ -7,7 +7,29 @@ public class RangedSkeletonScript : AEnemy
     //Private
     int inspector; //Utilise pour tracer des lignes ou des colonnes
     int shtong; //Utilise pour indiquer que le projectile a atteint quelque chose
-    
+
+    /// <summary>
+    /// La fonction qui gere l'attaque de notre squelette
+    /// </summary>
+    protected override void Attack()
+    {
+        inspector = 1;
+        shtong = 0;
+        //On s'arrete si on trouve un mur, ou un ennemi
+        while (shtong != -1 && shtong != 2)
+        {
+            //On regarde la cible actuelle
+            shtong = gameMaster.AuthorizeMovement((Vector2)transform.position + inspector * nextMove);
+            //Si la cible est une entite, on peut taper
+            if (shtong == 2)
+            {
+                target = gameMaster.GetEntity((Vector2)transform.position + inspector * nextMove);
+                target.GetComponent<AEntity>().getHurt(nextMove);
+            }
+            inspector++;
+        }
+    }
+
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
     /// </summary>
@@ -72,33 +94,5 @@ public class RangedSkeletonScript : AEnemy
         }
         //On oublie pas de changer son sprite
         ChangeSprite();
-    }
-
-    /// <summary>
-    /// Ordonne au monstre de faire l'action qu'il avait prevu
-    /// </summary>
-    public override void Action()
-    {
-        if (!intentionAttaque)
-        {
-            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1) transform.position += (Vector3)nextMove;
-        }
-        else
-        {
-            //On cherche ce sur quoi le tir s'arrete, entite ou mur du fond
-            inspector = 1;
-            shtong = 0;
-            while (shtong != -1 && shtong != 2)
-            {
-                shtong = gameMaster.AuthorizeMovement((Vector2)transform.position + inspector * nextMove);
-                if(shtong == 2)
-                {
-                    target = gameMaster.GetEntity((Vector2)transform.position + inspector * nextMove);
-                    target.GetComponent<AEntity>().getHurt(nextMove);
-                }
-                inspector++;
-            }
-        }
-        gameMaster.NextSkeleton();
     }
 }

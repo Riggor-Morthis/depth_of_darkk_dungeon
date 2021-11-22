@@ -4,7 +4,16 @@ using UnityEngine;
 
 public class MeleeSkeletonScript : AEnemy
 {
-    private bool moving = false;
+    /// <summary>
+    /// La fonction qui gere l'attaque de notre squelette
+    /// </summary>
+    protected override void Attack()
+    {
+        //On essaye de recuperer l'entite visee, et de lui faire des degats si elle existe
+        target = gameMaster.GetEntity((Vector2)transform.position + nextMove);
+        if (target != null) target.GetComponent<AEntity>().getHurt(nextMove);
+        gameMaster.NextSkeleton();
+    }
 
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
@@ -48,39 +57,5 @@ public class MeleeSkeletonScript : AEnemy
         ChangeSprite();
     }
 
-    /// <summary>
-    /// Ordonne au monstre de faire l'action qu'il avait prevu
-    /// </summary>
-    public override void Action()
-    {
-        if (!intentionAttaque)
-        {
-            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1)
-            {
-                targetDestination = transform.position + (Vector3)nextMove;
-                moving = true;
-            }
-        }
-        else
-        {
-            target = gameMaster.GetEntity((Vector2)transform.position + nextMove);
-            if (target != null) target.GetComponent<AEntity>().getHurt(nextMove);
-        }
-    }
-
-    private void Update()
-    {
-        if (moving)
-        {
-            if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
-            {
-                moving = false;
-                gameMaster.NextSkeleton();
-            }
-            else
-            {
-                transform.position += (Vector3)nextMove * actionSpeed * Time.deltaTime;
-            }
-        }
-    }
+    
 }

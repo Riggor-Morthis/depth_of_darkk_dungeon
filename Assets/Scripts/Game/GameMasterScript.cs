@@ -215,21 +215,9 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void FirstLoop()
     {
-        GridReset();
         DistanceAssignment();
         foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
         playerKnight.AllowMovement();
-    }
-
-    /// <summary>
-    /// Utilisee pour remettre a zero toutes les tuiles de la grille (niveau couleur)
-    /// </summary>
-    void GridReset()
-    {
-        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
-            {
-                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().ResetColor();
-            }
     }
 
     /// <summary>
@@ -273,7 +261,8 @@ public class GameMasterScript : MonoBehaviour
     public void NewLoop()
     {
         CheckSceneEnd();
-        currentSkeleton = 0;
+        GridReset();
+        currentSkeleton = -1;
         NextSkeleton();
     }
 
@@ -290,16 +279,24 @@ public class GameMasterScript : MonoBehaviour
     }
 
     /// <summary>
+    /// Utilisee pour remettre a zero toutes les tuiles de la grille (niveau couleur)
+    /// </summary>
+    void GridReset()
+    {
+        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
+            {
+                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().ResetColor();
+            }
+    }
+
+    /// <summary>
     /// Ordonne au squelette suivant d'agir
     /// </summary>
     public void NextSkeleton()
     {
+        currentSkeleton++;
         if (currentSkeleton >= enemies.Count) FirstLoop();
-        else
-        {
-            enemies[currentSkeleton].GetComponent<AEnemy>().Action();
-            currentSkeleton++;
-        }
+        else enemies[currentSkeleton].GetComponent<AEnemy>().Action();
     }
 
     /// <summary>

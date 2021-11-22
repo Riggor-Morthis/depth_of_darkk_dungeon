@@ -14,6 +14,41 @@ public abstract class AEnemy : AEntity
 
     //Private
     int spriteX, spriteY; //Utilise pour connaitre les "coordonnees" du sprite a afficher
+    bool acting = false; //Indique a l'entite qu'il est temps qu'elle agisse
+    float timer; //Decompte le temps lorsque l'action est une attaque, qui se fait donc instantannement
+
+    /// <summary>
+    /// C'est ici qu'ont lieu les animations
+    /// </summary>
+    private void Update()
+    {
+        //Si on a le droit d'agir
+        if (acting)
+        {
+            //Si on veut bouger, on y va pas a pas jusqu'a etre au bon endroit
+            if (!intentionAttaque)
+            {
+                if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
+                {
+                    transform.position = targetDestination;
+                    acting = false;
+                    gameMaster.NextSkeleton();
+                }
+                else transform.position += (Vector3)nextMove * actionSpeed * Time.deltaTime;
+            }
+            //Sinon, on decremente notre timer jusqu'a en avoir fini
+            else
+            {
+                if (timer <= 0)
+                {
+                    acting = false;
+                    gameMaster.NextSkeleton();
+                }
+                else timer -= Time.deltaTime;
+            }
+
+        }
+    }
 
     /// <summary>
     /// La fonction qui modifie notre sprite en fonction de ce qu'on va faire
@@ -32,6 +67,11 @@ public abstract class AEnemy : AEntity
     }
 
     /// <summary>
+    /// Demande a l'entite d'attaquer
+    /// </summary>
+    protected abstract void Attack();
+
+    /// <summary>
     /// Ce qu'il se passe lorsque le monstre est attaque
     /// </summary>
     public override void getHurt(Vector2 attackDirection)
@@ -48,5 +88,19 @@ public abstract class AEnemy : AEntity
     /// <summary>
     /// Ordonne au monstre de faire l'action qu'il avait prevu
     /// </summary>
-    public abstract void Action();
+    public void Action()
+    {
+        //Si on compte pas attaquer, on trouve l'endroit qu'on veut
+        if (!intentionAttaque)
+        {
+            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1) targetDestination = transform.position + (Vector3)nextMove;
+        }
+        //Sinon, on attaque direct
+        else
+        {
+            Attack();
+            timer = 0.2f;
+        }
+        acting = true;
+    }
 }
