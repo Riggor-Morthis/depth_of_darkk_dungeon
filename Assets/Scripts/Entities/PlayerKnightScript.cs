@@ -5,7 +5,6 @@ using UnityEngine;
 public class PlayerKnightScript : AEntity
 {
     //Private
-    CameraScript mainCamera; //La camera du jeu, qui doit suivre le joueur
     bool inputPossible = false; //Indiquer si les inputs joueurs sont actuellement autorises ou non
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
     float touchAngle; //L'angle entre les "pieds" du joueur et l'endroit ou on a touche
@@ -21,8 +20,6 @@ public class PlayerKnightScript : AEntity
     override public void Initialize(Vector2 start)
     {
         base.Initialize(start);
-        mainCamera = GameObject.Find("MainCamera").GetComponent<CameraScript>();
-        //mainCamera.SetCamera(transform.position.y);
         Helmet = true;
     }
 
@@ -68,7 +65,6 @@ public class PlayerKnightScript : AEntity
         {
             transform.position += moveVector;
             CheckRenderingOrder();
-            //mainCamera.PushCamera(transform.position.y);
         }
         if (isMovementPossible > 0)
         {

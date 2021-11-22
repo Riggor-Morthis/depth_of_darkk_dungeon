@@ -10,6 +10,8 @@ public class RangedSkeletonScript : AEnemy
     GameObject target; //Le truc qu'on essaye de toucher
     int inspector; //Utilise pour tracer des lignes ou des colonnes
     int shtong; //Utilise pour indiquer que le projectile a atteint quelque chose
+    float distanceJoueur; //La distance qui nous separe du joueur
+    int randomChoice; //Utilise pour l'aleatoire du comportement du monstre
 
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
@@ -44,12 +46,32 @@ public class RangedSkeletonScript : AEnemy
         //Sinon, on choisit toujours de se deplacer
         else
         {
-            intentionAttaque = false;
-            //On commence par obtenir la meilleure case a atteindre
-            nextMove = gameMaster.PathFinding((Vector2)transform.position);
-            //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
-            nextMove.x = Mathf.RoundToInt(nextMove.x - transform.position.x);
-            nextMove.y = Mathf.RoundToInt(nextMove.y - transform.position.y);
+            //On commence par récupérer la distance au joueur
+            distanceJoueur = Vector3.Distance(transform.position, gameMaster.getPlayerPosition());
+            //Si on est assez proche, on va vers le joueur directement
+            if (distanceJoueur < 3)
+            {
+                //On commence par obtenir la meilleure case a atteindre
+                nextMove = gameMaster.PathFinding((Vector2)transform.position);
+                //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
+                nextMove.x = Mathf.RoundToInt(nextMove.x - transform.position.x);
+                nextMove.y = Mathf.RoundToInt(nextMove.y - transform.position.y);
+            }
+
+            //Sinon, on est trop loin, donc on se contente d'errer aleatoirement
+            else
+            {
+                intentionAttaque = false;
+                do
+                {
+                    randomChoice = Random.Range(0, 4);
+                    if (randomChoice == 0) nextMove = Vector2.up;
+                    else if (randomChoice == 1) nextMove = Vector2.down;
+                    else if (randomChoice == 2) nextMove = Vector2.right;
+                    else nextMove = Vector2.left;
+                } while (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) != 1);
+            }
+
             //On indique nos intentions sur le plateau
             gameMaster.EnemyIntention((int)((Vector2)transform.position + nextMove).x, (int)((Vector2)transform.position + nextMove).y, intentionAttaque);
         }

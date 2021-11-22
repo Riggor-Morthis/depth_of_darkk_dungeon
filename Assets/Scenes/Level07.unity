@@ -166,17 +166,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e8abcf3402d59a49932b8bdcbded18b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Floor13: 0
   levelWidth: 7
   levelHeight: 7
   holesInTheFloor: []
   enemyPositions:
-  - {x: 3, y: 0}
+  - {x: 2, y: 0}
+  treasures: []
   playerPosition: {x: 0, y: -3}
   endPosition: {x: 0, y: 3}
   nextLevel: Level08
   playerKnight: {fileID: 5881060923175236226}
   tilePrefab: {fileID: 3293928215325189452, guid: a8a2696b34f5d70428dc53fcf4a2fc86, type: 3}
   enemyPrefab: {fileID: 5286752961115359974, guid: abe2e796cb3d5d54e855fcc83f5d1b0a, type: 3}
+  secondEnemyPrefab: {fileID: 0}
 --- !u!1 &2082583807
 GameObject:
   m_ObjectHideFlags: 0

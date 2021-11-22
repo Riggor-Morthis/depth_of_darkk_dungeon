@@ -68,7 +68,7 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void AspectRatioCalculator()
     {
-        Camera.main.orthographicSize = Mathf.Max(levelHeight/2f + 0.2f, ((levelWidth / 2f + 0.2f) / Screen.width) * Screen.height);
+        Camera.main.orthographicSize = (3.6f / Screen.width) * Screen.height;
     }
 
     /// <summary>
