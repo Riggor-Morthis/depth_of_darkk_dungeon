@@ -12,7 +12,6 @@ public class MeleeSkeletonScript : AEnemy
         //On essaye de recuperer l'entite visee, et de lui faire des degats si elle existe
         target = gameMaster.GetEntity((Vector2)transform.position + nextMove);
         if (target != null) target.GetComponent<AEntity>().getHurt(nextMove);
-        gameMaster.NextSkeleton();
     }
 
     /// <summary>

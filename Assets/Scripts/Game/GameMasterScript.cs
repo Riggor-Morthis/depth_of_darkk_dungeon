@@ -19,7 +19,8 @@ public class GameMasterScript : MonoBehaviour
     public GameObject tilePrefab; //Pour stocker le prefab de la tuile
     public GameObject endPrefab; //Pour stocker le prefab de la tuile de fin
     public GameObject wallPrefab; //Pour stocker le prefab des murs du dongeon
-    public GameObject fallPrefab;
+    public GameObject fallPrefab; //Pour stocker le prefab des trous du dongeon
+    public GameObject treasurePrefab; //Pour stocker le prefab des tresors dans le donjon
     public GameObject enemyPrefab; //Pour stocker le prefab de l'ennemi
     public GameObject secondEnemyPrefab; //L'autre prefab ennemi, pour le niveau 13
 
@@ -28,13 +29,12 @@ public class GameMasterScript : MonoBehaviour
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
     GameObject[] dungeonWalls; //Les murs du donjon, une liste au sommet de la carte
     GameObject[,] dungeonFalls; //Pour les trous dans le niveau
+    List<GameObject> dungeonTreasures; //Pour les tresors du niveau
     Color[] colors = new Color[2] { new Color(173f / 255, 199f / 255, 204f / 255), new Color(145f / 255, 170f / 255, 194f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
     Color endTile = new Color(161f / 255, 188f / 255, 201f / 255); //La couleur utilise par la tuile de fin de niveau
     Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
-    Color treasure = new Color(217f / 255, 217f / 255, 126f / 255); //La couleur utilisee pour montrer les tuiles avec un tresor
     int pairImpair; //Juste pour savoir si on est sur une tuile paire ou impaire (initialisation uniquement)
     List<GameObject> enemies; // La liste de tous les ennemis actuellement presents dans le niveau
-    List<GameObject> tempEnemies; // Durant la phase d'action, des ennemis peuvent etre tue via friendly fire. Cette liste permet d'eviter les erreurs
     List<Vector2> casesPassees, casesEnCours, casesFutures, voisinsVises; //Utilisees pour l'algorithme d'attribution de distance, pour stocker les traitements
     int manhattanDistance; //Aussi utilise pour l'attribution de distance
     int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
@@ -155,6 +155,14 @@ public class GameMasterScript : MonoBehaviour
                     dungeonFalls[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
                 }
             }
+
+        //On finit par placer les tresors dans le niveau
+        dungeonTreasures = new List<GameObject>();
+        foreach(Vector2 treasure in treasures)
+        {
+            dungeonTreasures.Add(Instantiate(treasurePrefab));
+            dungeonTreasures.Last().GetComponent<TileScript>().Initialize((int)treasure.x, (int)treasure.y, Color.white);
+        }
     }
 
     /// <summary>
@@ -192,7 +200,6 @@ public class GameMasterScript : MonoBehaviour
     void EnemyPlacer()
     {
         enemies = new List<GameObject>();
-        tempEnemies = new List<GameObject>();
         for(int i = 0; i < enemyPositions.Count; i++)
         {
             //Si on est pas au niveau 13, on a qu'un seul type d'ennemi
@@ -261,6 +268,7 @@ public class GameMasterScript : MonoBehaviour
     public void NewLoop()
     {
         CheckSceneEnd();
+        CheckTreasure();
         GridReset();
         currentSkeleton = -1;
         NextSkeleton();
@@ -274,7 +282,26 @@ public class GameMasterScript : MonoBehaviour
         if ((Vector2)playerKnight.transform.position == endPosition)
         {
             GameMasterRessources.weWon = true;
+            Debug.Log(playerKnight.getScore());
             SceneManager.LoadScene(nextLevel);
+        }
+    }
+
+    /// <summary>
+    /// On regarde si le joueur ramasse un tresor ou non apres son deplacement
+    /// </summary>
+    void CheckTreasure()
+    {
+        //On inspecte nos tresors
+        for(int i = dungeonTreasures.Count - 1; i >= 0; i--)
+        {
+            //Si on a les memes coordonnees qu'un tresor
+            if(dungeonTreasures[i].transform.position == playerKnight.transform.position)
+            {
+                playerKnight.ScoreTreasure();
+                dungeonTreasures[i].SetActive(false);
+                //dungeonTreasures.RemoveAt(i);
+            }
         }
     }
 

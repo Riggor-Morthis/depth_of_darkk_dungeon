@@ -31,7 +31,9 @@ public abstract class AEnemy : AEntity
                 if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
                 {
                     transform.position = targetDestination;
+                    CheckRenderingOrder();
                     acting = false;
+                    ChangeSprite();
                     gameMaster.NextSkeleton();
                 }
                 else transform.position += (Vector3)nextMove * actionSpeed * Time.deltaTime;
@@ -44,9 +46,8 @@ public abstract class AEnemy : AEntity
                     acting = false;
                     gameMaster.NextSkeleton();
                 }
-                else timer -= Time.deltaTime;
+                timer -= Time.deltaTime;
             }
-
         }
     }
 
@@ -99,7 +100,7 @@ public abstract class AEnemy : AEntity
         else
         {
             Attack();
-            timer = 0.2f;
+            timer = 0.25f;
         }
         acting = true;
     }

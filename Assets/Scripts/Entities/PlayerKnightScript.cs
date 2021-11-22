@@ -11,8 +11,12 @@ public class PlayerKnightScript : AEntity
     Vector3 moveVector; //Le vecteur de notre mouvement
     int isMovementPossible; //Pour stocker la reponse du game master par rapport au mouvement demande
     GameObject target; //L'ennemi qu'on essaye de toucher(si il y en a un)
-    bool Helmet; //Est-ce que le joueur possede un Heaume ou non. Si il a un Heaume, il ne prend pas de degats mais il perd le Heaume
+    bool helmet; //Est-ce que le joueur possede un Heaume ou non. Si il a un Heaume, il ne prend pas de degats mais il perd le Heaume
     int spriteX, spriteY; //Utilise pour connaitre les "coordonnees" du sprite a afficher
+    bool acting; //Utilise pour indiquer que le joueur est en train d'agir
+    Vector3 targetDestination; //La ou on veut aller
+    float timer; //Pour passer le temps lorsqu'on attaque
+    int score;
 
     /// <summary>
     /// Cree l'entite de la bonne face
@@ -21,18 +25,60 @@ public class PlayerKnightScript : AEntity
     override public void Initialize(Vector2 start)
     {
         base.Initialize(start);
-        Helmet = true;
+        helmet = true;
+        score = 0;
     }
 
     //On recupere la ou le joueur appuie, et on interprete alors l'ordre correspondant
     private void Update()
     {
+        //Si l'input est possible, on ecoute ce que le joueur a dire, puis on reagit en consequence
         if (inputPossible && Input.GetMouseButtonDown(0))
         {
             inputPossible = false;
             GetInput();
             MoveVectorCreator();
             MovePlayer();
+        }
+        //Sinon, si on peut agir on agit
+        else if (acting)
+        {
+            //Tant qu'on est pas arrive, on fait que ca
+            if(transform.position != targetDestination)
+            {
+                //Une fois arrive la ou on veut, il y a des verifications a faire
+                if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
+                {
+                    //On arrondit notre position
+                    transform.position = targetDestination;
+                    CheckRenderingOrder();
+                    //On recupere le mouvement droit devant nous
+                    isMovementPossible = gameMaster.AuthorizeMovement(transform.position + moveVector);
+                    //Si on a un 2, il faut lancer une phase d'attaque
+                    if (isMovementPossible == 2)
+                    {
+                        //On recupere la cible et on la blesse
+                        target = gameMaster.GetEntity(transform.position + moveVector);
+                        if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
+                        //On change notre score
+                        if (target.GetComponent<RangedSkeletonScript>() != null) ScoreModifier(10000);
+                        else ScoreModifier(5000);
+                        //On demarre le timer
+                        timer = 0.25f;
+                    }
+                    //Sinon, on met le timer a 0 pour esquiver tout ca
+                    else timer = 0;
+                }
+                else transform.position += (Vector3)moveVector * actionSpeed * Time.deltaTime;
+                
+            }
+            //Sinon, on laisse le temps passer
+            else if(timer <= 0)
+            {
+                acting = false;
+                gameMaster.NewLoop();
+            }
+            else timer -= Time.deltaTime;
         }
     }
 
@@ -61,26 +107,44 @@ public class PlayerKnightScript : AEntity
     /// </summary>
     private void MovePlayer()
     {
+        //On demande au maitre du jeu si le mouvement est possible
         isMovementPossible = gameMaster.AuthorizeMovement(transform.position + moveVector);
-        if (isMovementPossible == 1)
+        //Si il est possible on commence les animations
+        if (isMovementPossible >= 0)
         {
-            transform.position += moveVector;
-            CheckRenderingOrder();
-        }
-        if (isMovementPossible > 0)
-        {
-            target = gameMaster.GetEntity(transform.position + moveVector);
-            if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
             ChangeSprite();
-            gameMaster.NewLoop();
+            acting = true;
+            //Si on a un ennemi devant
+            if (isMovementPossible == 2)
+            {
+                //On reste ici
+                targetDestination = transform.position;
+                //On recupere la cible et on la blesse
+                target = gameMaster.GetEntity(transform.position + moveVector);
+                if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
+                //On change notre score
+                if (target.GetComponent<RangedSkeletonScript>() != null) ScoreModifier(10000);
+                else ScoreModifier(5000);
+                //On demarre le timer
+                timer = 0.25f;
+            }
+            else
+            {
+                targetDestination = transform.position + moveVector;
+                ScoreModifier(-247);
+            }
         }
+        //Sinon, on re-autorise les inputs du joueur
         else inputPossible = true;
     }
 
+    /// <summary>
+    /// La fonction qui s'assure qu'on ait le bon sprite a tout moment
+    /// </summary>
     void ChangeSprite()
     {
         //On commence par determiner le meilleur sprite en fonction de ce qu'on va faire
-        if (Helmet) spriteY = 0;
+        if (helmet) spriteY = 0;
         else spriteY = 4;
         if (moveVector == Vector3.down) spriteX = 0;
         else if (moveVector == Vector3.left) spriteX = 1;
@@ -88,6 +152,12 @@ public class PlayerKnightScript : AEntity
         else spriteX = 3;
         //Ensuite, on applique ce sprite
         spriteRenderer.sprite = spriteArray[spriteX + spriteY];
+    }
+
+
+    void ScoreModifier(int s)
+    {
+        score = Mathf.Max(0, score + s);
     }
 
     /// <summary>
@@ -107,13 +177,34 @@ public class PlayerKnightScript : AEntity
         if(!(attackDirection == -(Vector2)moveVector))
         {
             //Si on a un Heaume, pas de degats
-            if (Helmet)
+            if (helmet)
             {
-                Helmet = false;
+                helmet = false;
                 ChangeSprite();
+                ScoreModifier(-2500);
             }
             //Sinon, on a perdu
             else gameMaster.ReloadScene();
         }
     }
+
+    /// <summary>
+    /// Indique au joueur qu'il vient de recuperer un tresor
+    /// </summary>
+    public void ScoreTreasure()
+    {
+        if (!helmet)
+        {
+            helmet = true;
+            ChangeSprite();
+            ScoreModifier(6500);
+        }
+        else ScoreModifier(13000);
+    }
+
+    /// <summary>
+    /// Give the player's scores
+    /// </summary>
+    /// <returns>le score actuel du joueur</returns>
+    public int getScore() => score;
 }

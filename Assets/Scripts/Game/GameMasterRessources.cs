@@ -125,7 +125,7 @@ public class GameMasterRessources : MonoBehaviour
             do
             {
                 currentVec = new Vector2(Random.Range(startX, endX + 1), Random.Range(startY, endY + 1));
-            } while (currentVec == playerPosition || currentVec == endPosition || holesInTheFloor.Contains(currentVec) || enemyPositions.Contains(currentVec));
+            } while (currentVec == playerPosition || currentVec == endPosition || holesInTheFloor.Contains(currentVec) || enemyPositions.Contains(currentVec) || treasures.Contains(currentVec));
             treasures.Add(currentVec);
         }
     }
