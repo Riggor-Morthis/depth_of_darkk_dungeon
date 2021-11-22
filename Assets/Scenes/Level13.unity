@@ -171,6 +171,7 @@ MonoBehaviour:
   levelHeight: 0
   holesInTheFloor: []
   enemyPositions: []
+  treasures: []
   playerPosition: {x: 0, y: 0}
   endPosition: {x: 0, y: 0}
   nextLevel: Level13
@@ -227,7 +228,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0

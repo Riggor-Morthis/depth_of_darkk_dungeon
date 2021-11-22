@@ -21,7 +21,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: Project
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 875, y: 542}
+  m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 1
 --- !u!114 &2
@@ -119,10 +119,10 @@ MonoBehaviour:
     y: 30
     width: 1920
     height: 947
-  m_MinSize: {x: 678, y: 492}
+  m_MinSize: {x: 679, y: 492}
   m_MaxSize: {x: 14002, y: 14042}
   vertical: 0
-  controlID: 17
+  controlID: 85
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -144,10 +144,10 @@ MonoBehaviour:
     y: 0
     width: 1529
     height: 947
-  m_MinSize: {x: 402, y: 492}
+  m_MinSize: {x: 403, y: 492}
   m_MaxSize: {x: 10001, y: 14042}
   vertical: 1
-  controlID: 109
+  controlID: 16
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -169,10 +169,10 @@ MonoBehaviour:
     y: 0
     width: 1529
     height: 599
-  m_MinSize: {x: 402, y: 221}
-  m_MaxSize: {x: 8002, y: 4021}
+  m_MinSize: {x: 403, y: 221}
+  m_MaxSize: {x: 8003, y: 4021}
   vertical: 0
-  controlID: 110
+  controlID: 17
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -192,8 +192,8 @@ MonoBehaviour:
     y: 0
     width: 250
     height: 599
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 201, y: 221}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
@@ -338,7 +338,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 2560, y: 1440}
+  m_TargetSize: {x: 313, y: 557}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -353,10 +353,10 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -1280
-    m_HBaseRangeMax: 1280
-    m_VBaseRangeMin: -720
-    m_VBaseRangeMax: 720
+    m_HBaseRangeMin: -156.5
+    m_HBaseRangeMax: 156.5
+    m_VBaseRangeMin: -278.5
+    m_VBaseRangeMax: 278.5
     m_HAllowExceedBaseRangeMin: 1
     m_HAllowExceedBaseRangeMax: 1
     m_VAllowExceedBaseRangeMin: 1
@@ -376,7 +376,7 @@ MonoBehaviour:
       y: 21
       width: 1277
       height: 557
-    m_Scale: {x: 0.38680556, y: 0.38680556}
+    m_Scale: {x: 1, y: 1}
     m_Translation: {x: 638.5, y: 278.5}
     m_MarginLeft: 0
     m_MarginRight: 0
@@ -384,12 +384,12 @@ MonoBehaviour:
     m_MarginBottom: 0
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
-      x: -1650.7002
-      y: -720
-      width: 3301.4004
-      height: 1440
+      x: -638.5
+      y: -278.5
+      width: 1277
+      height: 557
     m_MinimalGUI: 1
-  m_defaultScale: 0.38680556
+  m_defaultScale: 1
   m_LastWindowPixelSize: {x: 1277, y: 578}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
@@ -424,9 +424,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: de100000
+      m_SelectedIDs: 125b0000
       m_LastClickedID: 0
-      m_ExpandedIDs: 44d2ffff6ed2ffffb8d4ffff36fbffff
+      m_ExpandedIDs: 12c9ffff26cfffff88cfffffe8cfffff4ad0ffffbcd0ffff16d1ffff50d1ffffb8d1ffff20d2ffff80d2ffffe0d2ffff44d3ffffaad3ffff46fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -488,7 +488,7 @@ MonoBehaviour:
   m_Position:
     m_Target: {x: 1.1169605, y: -0.4931626, z: -11.261987}
     speed: 2
-    m_Value: {x: 1.1169605, y: -0.4931626, z: -11.261987}
+    m_Value: {x: 0, y: 0, z: 0}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -541,7 +541,7 @@ MonoBehaviour:
   m_Size:
     m_Target: 10.223118
     speed: 2
-    m_Value: 10.223118
+    m_Value: 0.71414286
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -629,22 +629,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/Entities
+    - Assets/Prefabs
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 96
   m_LastFolders:
-  - Assets/Scripts/Entities
+  - Assets/Prefabs
   m_LastFoldersGridSize: 96
   m_LastProjectPath: C:\Users\googl\unity-workspace\depth_of_darkk_dungeon
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: ac420000
-    m_LastClickedID: 17068
-    m_ExpandedIDs: 000000007a4200008242000000ca9a3b
+    m_SelectedIDs: 78420000
+    m_LastClickedID: 17016
+    m_ExpandedIDs: 00000000744200007c4200007e42000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -672,7 +672,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000007a420000
+    m_ExpandedIDs: 0000000074420000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 

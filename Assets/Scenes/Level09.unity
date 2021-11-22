@@ -166,6 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e8abcf3402d59a49932b8bdcbded18b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Floor13: 0
   levelWidth: 7
   levelHeight: 7
   holesInTheFloor:
@@ -184,12 +185,14 @@ MonoBehaviour:
   - {x: -2, y: 0}
   - {x: 2, y: 0}
   - {x: 0, y: 2}
+  treasures: []
   playerPosition: {x: 0, y: -3}
   endPosition: {x: 0, y: 3}
   nextLevel: Level10
   playerKnight: {fileID: 5881060923175236226}
   tilePrefab: {fileID: 3293928215325189452, guid: a8a2696b34f5d70428dc53fcf4a2fc86, type: 3}
   enemyPrefab: {fileID: 5286752961115359974, guid: abe2e796cb3d5d54e855fcc83f5d1b0a, type: 3}
+  secondEnemyPrefab: {fileID: 0}
 --- !u!1 &2082583807
 GameObject:
   m_ObjectHideFlags: 0
@@ -239,7 +242,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.6981132, g: 0.6981132, b: 0.6981132, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
