@@ -28,7 +28,7 @@ public class TileScript : MonoBehaviour
 
         transform.position = new Vector2(coordX, coordY);
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         spriteRenderer.color = colour;
         spriteRenderer.sortingOrder = -(100 + coordY);
 

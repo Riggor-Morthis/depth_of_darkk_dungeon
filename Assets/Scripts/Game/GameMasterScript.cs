@@ -17,12 +17,17 @@ public class GameMasterScript : MonoBehaviour
     public string nextLevel; //Le nom de la scene suivante
     public PlayerKnightScript playerKnight; //Le gameObject du joueur
     public GameObject tilePrefab; //Pour stocker le prefab de la tuile
+    public GameObject endPrefab; //Pour stocker le prefab de la tuile de fin
+    public GameObject wallPrefab; //Pour stocker le prefab des murs du dongeon
+    public GameObject fallPrefab;
     public GameObject enemyPrefab; //Pour stocker le prefab de l'ennemi
     public GameObject secondEnemyPrefab; //L'autre prefab ennemi, pour le niveau 13
 
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
+    GameObject[] dungeonWalls; //Les murs du donjon, une liste au sommet de la carte
+    GameObject[,] dungeonFalls; //Pour les trous dans le niveau
     Color[] colors = new Color[2] { new Color(173f / 255, 199f / 255, 204f / 255), new Color(145f / 255, 170f / 255, 194f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
     Color endTile = new Color(161f / 255, 188f / 255, 201f / 255); //La couleur utilise par la tuile de fin de niveau
     Color[] mobIntentions = new Color[2] { new Color(108f / 255, 217f / 255, 126f / 255), new Color(217f / 255, 108f / 255, 126f / 255) }; //Les couleurs utilisees par "l'interface", respectivement deplacement puis attaque
@@ -33,6 +38,7 @@ public class GameMasterScript : MonoBehaviour
     List<Vector2> casesPassees, casesEnCours, casesFutures, voisinsVises; //Utilisees pour l'algorithme d'attribution de distance, pour stocker les traitements
     int manhattanDistance; //Aussi utilise pour l'attribution de distance
     int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
+    int currentSkeleton; //A quel ennemi en est-on ?
 
     /// <summary>
     /// Appeler au debut de la scene, pour tout initialiser
@@ -98,22 +104,55 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void FloorBuilder()
     {
+        //Initialisation de variable
         startX = -levelWidth / 2;
         startY = -levelHeight / 2;
 
+        //On commence par poser les tuiles
         int tempX, tempY;
         dungeonGrid = new GameObject[levelWidth, levelHeight];
         for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
             {
                 tempX = startX + i;
                 tempY = startY + j;
+                //Si la tuile n'est pas un trou
                 if(!holesInTheFloor.Contains(new Vector2(tempX, tempY)))
                 {
-                    dungeonGrid[i, j] = Instantiate(tilePrefab);
+                    //Pas le meme modele selon si la tuile est l'escalier ou une tuile classique
+                    if (tempX == endPosition.x && tempY == endPosition.y) dungeonGrid[i, j] = Instantiate(endPrefab);
+                    else dungeonGrid[i, j] = Instantiate(tilePrefab);
+                    //On s'apprete a initialiser, et on calcul la couleur pour faire du quinquonce
                     pairImpair = (i + j) % 2;
                     if (tempX == endPosition.x && tempY == endPosition.y) dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, endTile);
-                    else if(treasures.Contains(new Vector2(tempX, tempY))) dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, treasure);
                     else dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
+                }
+            }
+
+        //On va maintenant faire les murs
+        /*dungeonWalls = new GameObject[levelWidth];
+        for (int i = 0; i < levelWidth; i++)
+        {
+            tempX = startX + i;
+            //On veut pas en placer au dessus de la sortie, et on veut pas en placer au dessus du vide
+            if (tempX != endPosition.x && dungeonGrid[i, levelHeight - 1] != null)
+            {
+                dungeonWalls[i] = Instantiate(wallPrefab);
+                dungeonWalls[i].GetComponent<TileScript>().Initialize(tempX, levelHeight + startY, colors[i % 2]);
+            }
+        }*/
+
+        //On peut passer aux trous
+        dungeonFalls = new GameObject[levelWidth, levelHeight];
+        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight - 1; j++)
+            {
+                //On cherche juste les endroits ou la tuile est null mais pas la tuile du dessus
+                if (dungeonGrid[i, j] == null && dungeonGrid[i, j + 1] != null)
+                {
+                    tempX = startX + i;
+                    tempY = startY + j;
+                    dungeonFalls[i, j] = Instantiate(fallPrefab);
+                    pairImpair = (i + j + 1) % 2;
+                    dungeonFalls[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
                 }
             }
     }
@@ -176,9 +215,21 @@ public class GameMasterScript : MonoBehaviour
     /// </summary>
     void FirstLoop()
     {
+        GridReset();
         DistanceAssignment();
         foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
         playerKnight.AllowMovement();
+    }
+
+    /// <summary>
+    /// Utilisee pour remettre a zero toutes les tuiles de la grille (niveau couleur)
+    /// </summary>
+    void GridReset()
+    {
+        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
+            {
+                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().ResetColor();
+            }
     }
 
     /// <summary>
@@ -222,17 +273,8 @@ public class GameMasterScript : MonoBehaviour
     public void NewLoop()
     {
         CheckSceneEnd();
-        tempEnemies.Clear();
-
-        foreach (GameObject enemy in enemies) tempEnemies.Add(enemy);
-        foreach(GameObject tempEnemy in tempEnemies) if(enemies.Contains(tempEnemy)) tempEnemy.GetComponent<AEnemy>().Action();
-        tempEnemies.Clear();
-
-        GridReset();
-        //Repetition de la premiere boucle
-        DistanceAssignment();
-        foreach (GameObject enemy in enemies) enemy.GetComponent<AEnemy>().PathFinding();
-        playerKnight.AllowMovement();
+        currentSkeleton = 0;
+        NextSkeleton();
     }
 
     /// <summary>
@@ -248,14 +290,16 @@ public class GameMasterScript : MonoBehaviour
     }
 
     /// <summary>
-    /// Utilisee pour remettre a zero toutes les tuiles de la grille (niveau couleur)
+    /// Ordonne au squelette suivant d'agir
     /// </summary>
-    void GridReset()
+    public void NextSkeleton()
     {
-        for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight; j++)
-            {
-                if (dungeonGrid[i, j] != null && dungeonGrid[i, j].GetComponent<TileScript>().getAltered()) dungeonGrid[i, j].GetComponent<TileScript>().ResetColor();
-            }
+        if (currentSkeleton >= enemies.Count) FirstLoop();
+        else
+        {
+            enemies[currentSkeleton].GetComponent<AEnemy>().Action();
+            currentSkeleton++;
+        }
     }
 
     /// <summary>

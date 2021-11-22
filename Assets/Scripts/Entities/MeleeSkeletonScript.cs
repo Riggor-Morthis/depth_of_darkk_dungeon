@@ -4,12 +4,7 @@ using UnityEngine;
 
 public class MeleeSkeletonScript : AEnemy
 {
-    //Private
-    float distanceJoueur; //La distance qui nous separe du joueur
-    Vector2 nextMove; //La ou l'ennemi va aller/attaquer la prochaine fois
-    bool intentionAttaque; //Est-ce que le monstre compte nous attaquer, ou non ?
-    GameObject target; //Le truc qu'on essaye de toucher
-    int randomChoice; //Utilise pour l'aleatoire du comportement du monstre
+    private bool moving = false;
 
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
@@ -19,7 +14,7 @@ public class MeleeSkeletonScript : AEnemy
         //On commence par récupérer la distance au joueur
         distanceJoueur = Vector3.Distance(transform.position, gameMaster.getPlayerPosition());
         //Si on est assez proche, on va vers le joueur directement
-        if (distanceJoueur < 3)
+        if (distanceJoueur < 4)
         {
             //On commence par obtenir la meilleure case a atteindre
             nextMove = gameMaster.PathFinding((Vector2)transform.position);
@@ -29,7 +24,8 @@ public class MeleeSkeletonScript : AEnemy
             //Enfin, on determine nos intentations
             if (distanceJoueur <= 1f) intentionAttaque = true;
             else if (distanceJoueur <= 2f) if (Random.value <= 0.5f) intentionAttaque = true; else intentionAttaque = false;
-            else if (Random.value <= 0.25f) intentionAttaque = true; else intentionAttaque = false;
+            else if (distanceJoueur <= 3f) if (Random.value <= 0.25f) intentionAttaque = true; else intentionAttaque = false;
+            else intentionAttaque = false;
         }
 
         //Sinon, on est trop loin, donc on se contente d'errer aleatoirement
@@ -48,6 +44,8 @@ public class MeleeSkeletonScript : AEnemy
 
         //On indique nos intentions sur le plateau
         gameMaster.EnemyIntention((int)((Vector2)transform.position + nextMove).x, (int)((Vector2)transform.position + nextMove).y, intentionAttaque);
+        //On oublie pas de changer son sprite
+        ChangeSprite();
     }
 
     /// <summary>
@@ -57,12 +55,32 @@ public class MeleeSkeletonScript : AEnemy
     {
         if (!intentionAttaque)
         {
-            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1) transform.position += (Vector3)nextMove;
+            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1)
+            {
+                targetDestination = transform.position + (Vector3)nextMove;
+                moving = true;
+            }
         }
         else
         {
             target = gameMaster.GetEntity((Vector2)transform.position + nextMove);
             if (target != null) target.GetComponent<AEntity>().getHurt(nextMove);
+        }
+    }
+
+    private void Update()
+    {
+        if (moving)
+        {
+            if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
+            {
+                moving = false;
+                gameMaster.NextSkeleton();
+            }
+            else
+            {
+                transform.position += (Vector3)nextMove * actionSpeed * Time.deltaTime;
+            }
         }
     }
 }

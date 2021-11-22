@@ -12,6 +12,7 @@ public class PlayerKnightScript : AEntity
     int isMovementPossible; //Pour stocker la reponse du game master par rapport au mouvement demande
     GameObject target; //L'ennemi qu'on essaye de toucher(si il y en a un)
     bool Helmet; //Est-ce que le joueur possede un Heaume ou non. Si il a un Heaume, il ne prend pas de degats mais il perd le Heaume
+    int spriteX, spriteY; //Utilise pour connaitre les "coordonnees" du sprite a afficher
 
     /// <summary>
     /// Cree l'entite de la bonne face
@@ -70,9 +71,23 @@ public class PlayerKnightScript : AEntity
         {
             target = gameMaster.GetEntity(transform.position + moveVector);
             if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
+            ChangeSprite();
             gameMaster.NewLoop();
         }
         else inputPossible = true;
+    }
+
+    void ChangeSprite()
+    {
+        //On commence par determiner le meilleur sprite en fonction de ce qu'on va faire
+        if (Helmet) spriteY = 0;
+        else spriteY = 4;
+        if (moveVector == Vector3.down) spriteX = 0;
+        else if (moveVector == Vector3.left) spriteX = 1;
+        else if (moveVector == Vector3.up) spriteX = 2;
+        else spriteX = 3;
+        //Ensuite, on applique ce sprite
+        spriteRenderer.sprite = spriteArray[spriteX + spriteY];
     }
 
     /// <summary>
@@ -92,7 +107,11 @@ public class PlayerKnightScript : AEntity
         if(!(attackDirection == -(Vector2)moveVector))
         {
             //Si on a un Heaume, pas de degats
-            if (Helmet) Helmet = false;
+            if (Helmet)
+            {
+                Helmet = false;
+                ChangeSprite();
+            }
             //Sinon, on a perdu
             else gameMaster.ReloadScene();
         }

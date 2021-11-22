@@ -4,11 +4,13 @@ using UnityEngine;
 
 public abstract class AEntity : MonoBehaviour
 {
+    //Public
+    public Sprite[] spriteArray; //La ou on va stocker tous les sprites de l'entite
+
     //Protected
     protected GameMasterScript gameMaster;
-
-    //Private
-    SpriteRenderer spriteRenderer; //Le component du sprite
+    protected SpriteRenderer spriteRenderer; //Le component du sprite
+    protected int actionSpeed; //Utilisee pour les animations
 
     /// <summary>
     /// Modifie le rendering order de l'entite en fonction de ses coordonnes en y
@@ -27,6 +29,7 @@ public abstract class AEntity : MonoBehaviour
         gameMaster = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
         transform.position = start;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        spriteRenderer.sprite = spriteArray[0];
         CheckRenderingOrder();
     }
 

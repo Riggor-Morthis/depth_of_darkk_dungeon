@@ -32,8 +32,8 @@ public class GameMasterRessources : MonoBehaviour
         weWon = false;
 
         //Premierement, les dimensions du niveau
-        levelWidth = 7 + Random.Range(0, 3) * 2;
-        levelHeight = 11 + Random.Range(0, 3) * 2;
+        levelWidth = 7 + Random.Range(0, 5) * 2;
+        levelHeight = 22 - levelWidth;
         startX = -(levelWidth / 2);
         endX = -startX;
         startY = -(levelHeight / 2);
@@ -86,7 +86,7 @@ public class GameMasterRessources : MonoBehaviour
 
         //On va s'assurer qu'on peut atteindre la fin, peu importe les trous
         //On va faire ca de maniere tres simpliste et brutale
-        for (int i = startX; i <= endX; i++)
+        for (int i = startY; i <= endY; i++)
         {
             currentVec = new Vector2(playerPosition.x, i);
             if (holesInTheFloor.Contains(currentVec)) holesInTheFloor.Remove(currentVec);
@@ -117,9 +117,10 @@ public class GameMasterRessources : MonoBehaviour
             enemyPositions.Add(currentVec);
         }
 
-        //Pour finir, on depose 3 tresors dans la salle
+        //Pour finir, on depose des tresors dans la salle
+        budget = Mathf.RoundToInt(Random.Range(0.03f, 0.05f) * (levelHeight * levelWidth));
         treasures = new List<Vector2>();
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < budget; i++)
         {
             do
             {

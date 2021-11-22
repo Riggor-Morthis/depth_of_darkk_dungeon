@@ -5,14 +5,9 @@ using UnityEngine;
 public class RangedSkeletonScript : AEnemy
 {
     //Private
-    Vector2 nextMove; //La ou l'ennemi va aller/attaquer la prochaine fois
-    bool intentionAttaque; //Est-ce que le monstre compte nous attaquer, ou non ?
-    GameObject target; //Le truc qu'on essaye de toucher
     int inspector; //Utilise pour tracer des lignes ou des colonnes
     int shtong; //Utilise pour indiquer que le projectile a atteint quelque chose
-    float distanceJoueur; //La distance qui nous separe du joueur
-    int randomChoice; //Utilise pour l'aleatoire du comportement du monstre
-
+    
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
     /// </summary>
@@ -46,10 +41,11 @@ public class RangedSkeletonScript : AEnemy
         //Sinon, on choisit toujours de se deplacer
         else
         {
+            intentionAttaque = false;
             //On commence par récupérer la distance au joueur
             distanceJoueur = Vector3.Distance(transform.position, gameMaster.getPlayerPosition());
             //Si on est assez proche, on va vers le joueur directement
-            if (distanceJoueur < 3)
+            if (distanceJoueur < 4f)
             {
                 //On commence par obtenir la meilleure case a atteindre
                 nextMove = gameMaster.PathFinding((Vector2)transform.position);
@@ -61,7 +57,6 @@ public class RangedSkeletonScript : AEnemy
             //Sinon, on est trop loin, donc on se contente d'errer aleatoirement
             else
             {
-                intentionAttaque = false;
                 do
                 {
                     randomChoice = Random.Range(0, 4);
@@ -75,6 +70,8 @@ public class RangedSkeletonScript : AEnemy
             //On indique nos intentions sur le plateau
             gameMaster.EnemyIntention((int)((Vector2)transform.position + nextMove).x, (int)((Vector2)transform.position + nextMove).y, intentionAttaque);
         }
+        //On oublie pas de changer son sprite
+        ChangeSprite();
     }
 
     /// <summary>
@@ -102,5 +99,6 @@ public class RangedSkeletonScript : AEnemy
                 inspector++;
             }
         }
+        gameMaster.NextSkeleton();
     }
 }
