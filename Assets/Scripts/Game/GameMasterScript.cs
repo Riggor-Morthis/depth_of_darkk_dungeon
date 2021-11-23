@@ -133,7 +133,7 @@ public class GameMasterScript : MonoBehaviour
             }
 
         //On peut passer aux trous
-        dungeonFalls = new GameObject[levelWidth, levelHeight];
+        dungeonFalls = new GameObject[levelWidth, levelHeight + 1];
         for (int i = 0; i < levelWidth; i++) for (int j = 0; j < levelHeight - 1; j++)
             {
                 //On cherche juste les endroits ou la tuile est null mais pas la tuile du dessus
@@ -141,14 +141,23 @@ public class GameMasterScript : MonoBehaviour
                 {
                     tempX = startX + i;
                     tempY = startY + j;
-                    dungeonFalls[i, j] = Instantiate(fallPrefab);
+                    dungeonFalls[i, j + 1] = Instantiate(fallPrefab);
                     pairImpair = (i + j + 1) % 2;
-                    dungeonFalls[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
+                    dungeonFalls[i, j + 1].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
                 }
             }
+        //On finit par les bordures en bas du niveau
+        for (int i = 0; i < levelWidth; i++) if (dungeonGrid[i, 0] != null)
+            {
+                tempX = startX + i;
+                tempY = startY - 1;
+                dungeonFalls[i, 0] = Instantiate(fallPrefab);
+                pairImpair = (i) % 2;
+                dungeonFalls[i, 0].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
+            }
 
-        //On finit par placer les tresors dans le niveau
-        dungeonTreasures = new List<GameObject>();
+            //On finit par placer les tresors dans le niveau
+            dungeonTreasures = new List<GameObject>();
         foreach(Vector2 treasure in treasures)
         {
             dungeonTreasures.Add(Instantiate(treasurePrefab));

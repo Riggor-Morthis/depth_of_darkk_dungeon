@@ -60,13 +60,13 @@
     <Compile Include="Assets\Scripts\Camera\CameraScript.cs" />
     <Compile Include="Assets\Scripts\Game\GameMasterRessources.cs" />
     <Compile Include="Assets\Scripts\Entities\AEnemy.cs" />
+    <Compile Include="Assets\Scripts\Game\MainMenuScript.cs" />
     <Compile Include="Assets\Scripts\Entities\PlayerKnightScript.cs" />
     <Compile Include="Assets\Scripts\Entities\AEntity.cs" />
     <Compile Include="Assets\Scripts\Environment\Sound.cs" />
     <Compile Include="Assets\Scripts\Game\GameMasterScript.cs" />
     <Compile Include="Assets\Scripts\Entities\DummyScript.cs" />
     <Compile Include="Assets\Scripts\Environment\TileScript.cs" />
-    <Compile Include="Assets\Scripts\Game\MainMenuScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

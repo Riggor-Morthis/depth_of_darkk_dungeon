@@ -35,7 +35,7 @@ public abstract class AEnemy : AEntity
             //Si on veut bouger, on y va pas a pas jusqu'a etre au bon endroit
             if (!intentionAttaque)
             {
-                if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
+                if (Vector3.Distance(transform.position, targetDestination) <= 0.1f)
                 {
                     transform.position = targetDestination;
                     CheckRenderingOrder();

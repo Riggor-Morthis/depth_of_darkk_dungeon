@@ -51,7 +51,7 @@ public class PlayerKnightScript : AEntity
             if(transform.position != targetDestination)
             {
                 //Une fois arrive la ou on veut, il y a des verifications a faire
-                if (Vector3.Distance(transform.position, targetDestination) <= 0.05f)
+                if (Vector3.Distance(transform.position, targetDestination) <= 0.1f)
                 {
                     //On arrondit notre position
                     transform.position = targetDestination;
