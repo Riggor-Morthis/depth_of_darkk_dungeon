@@ -14,9 +14,9 @@ public abstract class AEnemy : AEntity
     protected float distanceJoueur; //La distance qui nous separe du joueur
     protected int randomChoice; //Utilise pour l'aleatoire du comportement du monstre
     protected Vector3 targetDestination; //Utilise pour aller vers l'endroit vise
+    protected int spriteX, spriteY; //Utilise pour connaitre les "coordonnees" du sprite a afficher
 
     //Private
-    int spriteX, spriteY; //Utilise pour connaitre les "coordonnees" du sprite a afficher
     bool acting = false; //Indique a l'entite qu'il est temps qu'elle agisse
     float timer; //Decompte le temps lorsque l'action est une attaque, qui se fait donc instantannement
     bool dying = false; //Lorsqu'on est en train de mourir, pour que le fade soit gere dans le update
@@ -65,22 +65,6 @@ public abstract class AEnemy : AEntity
                 spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, currentAlpha / 255);
             }
         }
-    }
-
-    /// <summary>
-    /// La fonction qui modifie notre sprite en fonction de ce qu'on va faire
-    /// </summary>
-    protected void ChangeSprite()
-    {
-        //On commence par determiner le meilleur sprite en fonction de ce qu'on va faire
-        if (intentionAttaque) spriteY = 4;
-        else spriteY = 0;
-        if (nextMove == Vector2.down) spriteX = 0;
-        else if (nextMove == Vector2.left) spriteX = 1;
-        else if (nextMove == Vector2.up) spriteX = 2;
-        else spriteX = 3;
-        //Ensuite, on applique ce sprite
-        spriteRenderer.sprite = spriteArray[spriteX + spriteY];
     }
 
     /// <summary>
@@ -149,6 +133,11 @@ public abstract class AEnemy : AEntity
     /// La fonction qui joue le clip de mort
     /// </summary>
     protected abstract void PlayDeath();
+
+    /// <summary>
+    /// La fonction qui modifie notre sprite en fonction de ce qu'on va faire
+    /// </summary>
+    protected abstract void ChangeSprite();
 
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement

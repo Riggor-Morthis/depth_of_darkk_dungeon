@@ -79,4 +79,20 @@ public class MeleeSkeletonScript : AEnemy
     {
         audioManager.Play("SkeletonKilled");
     }
+
+    /// <summary>
+    /// La fonction qui modifie notre sprite en fonction de ce qu'on va faire
+    /// </summary>
+    protected override void ChangeSprite()
+    {
+        //On commence par determiner le meilleur sprite en fonction de ce qu'on va faire
+        if (intentionAttaque) spriteY = 4;
+        else spriteY = 0;
+        if (nextMove == Vector2.down) spriteX = 0;
+        else if (nextMove == Vector2.left) spriteX = 1;
+        else if (nextMove == Vector2.up) spriteX = 2;
+        else spriteX = 3;
+        //Ensuite, on applique ce sprite
+        spriteRenderer.sprite = spriteArray[spriteX + spriteY];
+    }
 }

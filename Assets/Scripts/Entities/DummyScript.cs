@@ -34,4 +34,9 @@ public class DummyScript : AEnemy
     {
         audioManager.Play("DummyKilled");
     }
+
+    protected override void ChangeSprite()
+    {
+       //Lol
+    }
 }

@@ -46,11 +46,11 @@ MonoBehaviour:
   sounds:
   - name: Step
     clip: {fileID: 8300000, guid: bcc04d3fa27d1604d8ad3d1622f19edc, type: 3}
-    volume: 1
+    volume: 0.8
     source: {fileID: 0}
   - name: ShieldBlock
     clip: {fileID: 8300000, guid: 202475de249442b44ae956d1454753a0, type: 3}
-    volume: 1
+    volume: 0.4
     source: {fileID: 0}
   - name: SwordAttack
     clip: {fileID: 8300000, guid: 8a26fadf5760d0644963697b6f8ece57, type: 3}

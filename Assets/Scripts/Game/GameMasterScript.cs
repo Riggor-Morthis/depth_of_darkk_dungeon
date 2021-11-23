@@ -18,7 +18,6 @@ public class GameMasterScript : MonoBehaviour
     public PlayerKnightScript playerKnight; //Le gameObject du joueur
     public GameObject tilePrefab; //Pour stocker le prefab de la tuile
     public GameObject endPrefab; //Pour stocker le prefab de la tuile de fin
-    public GameObject wallPrefab; //Pour stocker le prefab des murs du dongeon
     public GameObject fallPrefab; //Pour stocker le prefab des trous du dongeon
     public GameObject treasurePrefab; //Pour stocker le prefab des tresors dans le donjon
     public GameObject enemyPrefab; //Pour stocker le prefab de l'ennemi
@@ -28,7 +27,6 @@ public class GameMasterScript : MonoBehaviour
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
     GameObject[,] dungeonGrid; //Le sol du donjon, represente comme une grille
-    GameObject[] dungeonWalls; //Les murs du donjon, une liste au sommet de la carte
     GameObject[,] dungeonFalls; //Pour les trous dans le niveau
     List<GameObject> dungeonTreasures; //Pour les tresors du niveau
     Color[] colors = new Color[2] { new Color(173f / 255, 199f / 255, 204f / 255), new Color(145f / 255, 170f / 255, 194f / 255) }; //Les deux couleurs utilisees pour la quinquonce de notre damier
@@ -133,19 +131,6 @@ public class GameMasterScript : MonoBehaviour
                     else dungeonGrid[i, j].GetComponent<TileScript>().Initialize(tempX, tempY, colors[pairImpair]);
                 }
             }
-
-        //On va maintenant faire les murs
-        /*dungeonWalls = new GameObject[levelWidth];
-        for (int i = 0; i < levelWidth; i++)
-        {
-            tempX = startX + i;
-            //On veut pas en placer au dessus de la sortie, et on veut pas en placer au dessus du vide
-            if (tempX != endPosition.x && dungeonGrid[i, levelHeight - 1] != null)
-            {
-                dungeonWalls[i] = Instantiate(wallPrefab);
-                dungeonWalls[i].GetComponent<TileScript>().Initialize(tempX, levelHeight + startY, colors[i % 2]);
-            }
-        }*/
 
         //On peut passer aux trous
         dungeonFalls = new GameObject[levelWidth, levelHeight];
@@ -288,9 +273,8 @@ public class GameMasterScript : MonoBehaviour
     {
         if ((Vector2)playerKnight.transform.position == endPosition)
         {
-            audioManager.Play("Triumph");
+            if (Floor13) audioManager.Play("Triumph");
             GameMasterRessources.weWon = true;
-            Debug.Log(playerKnight.getScore());
             SceneManager.LoadScene(nextLevel);
         }
     }
@@ -339,7 +323,11 @@ public class GameMasterScript : MonoBehaviour
     {
         currentSkeleton++;
         if (currentSkeleton >= enemies.Count) FirstLoop();
-        else enemies[currentSkeleton].GetComponent<AEnemy>().Action();
+        else
+        {
+            if (enemies[currentSkeleton].GetComponent<DummyScript>() != null) enemies[currentSkeleton].GetComponent<DummyScript>().Action();
+            else enemies[currentSkeleton].GetComponent<AEnemy>().Action();
+        }
     }
 
     /// <summary>
