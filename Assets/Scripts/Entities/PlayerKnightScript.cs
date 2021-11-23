@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class PlayerKnightScript : AEntity
 {
+    //Public
+    public GameObject HelmetPrefab; //Le prefab de notre chapeau
+
     //Private
     bool inputPossible = false; //Indiquer si les inputs joueurs sont actuellement autorises ou non
     Vector2 playerToMouse; //Le vecteur allant de la position actuelle du joueur a la position actuelle de la souris
@@ -16,7 +19,8 @@ public class PlayerKnightScript : AEntity
     bool acting; //Utilise pour indiquer que le joueur est en train d'agir
     Vector3 targetDestination; //La ou on veut aller
     float timer; //Pour passer le temps lorsqu'on attaque
-    int score;
+    int score; //Le score qu'on accumule durant le niveau
+    GameObject currentHelmet; //Le dernier heaume qu'on ait jete
 
     /// <summary>
     /// Cree l'entite de la bonne face
@@ -65,7 +69,7 @@ public class PlayerKnightScript : AEntity
                         if (target.GetComponent<RangedSkeletonScript>() != null) ScoreModifier(10000);
                         else ScoreModifier(5000);
                         //On demarre le timer
-                        timer = 0.25f;
+                        timer = 0.20f;
                     }
                     //Sinon, on met le timer a 0 pour esquiver tout ca
                     else timer = 0;
@@ -128,7 +132,7 @@ public class PlayerKnightScript : AEntity
                 if (target.GetComponent<RangedSkeletonScript>() != null) ScoreModifier(10000);
                 else ScoreModifier(5000);
                 //On demarre le timer
-                timer = 0.25f;
+                timer = 0.20f;
             }
             else
             {
@@ -183,6 +187,9 @@ public class PlayerKnightScript : AEntity
             if (helmet)
             {
                 audioManager.Play("HelmetDestroyed");
+                currentHelmet = GameObject.Instantiate(HelmetPrefab);
+                currentHelmet.GetComponent<ParticleScript>().Initialize(transform.position);
+
                 helmet = false;
                 ChangeSprite();
                 ScoreModifier(-2500);

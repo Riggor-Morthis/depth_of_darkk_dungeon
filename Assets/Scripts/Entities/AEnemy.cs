@@ -4,6 +4,9 @@ using UnityEngine;
 
 public abstract class AEnemy : AEntity
 {
+    //Public
+    public GameObject BonePrefab; //Le prefab de nos os
+
     //Protected
     protected Vector2 nextMove; //La ou l'ennemi va aller/attaquer la prochaine fois
     protected bool intentionAttaque; //Est-ce que le monstre compte nous attaquer, ou non ?
@@ -16,6 +19,10 @@ public abstract class AEnemy : AEntity
     int spriteX, spriteY; //Utilise pour connaitre les "coordonnees" du sprite a afficher
     bool acting = false; //Indique a l'entite qu'il est temps qu'elle agisse
     float timer; //Decompte le temps lorsque l'action est une attaque, qui se fait donc instantannement
+    bool dying = false; //Lorsqu'on est en train de mourir, pour que le fade soit gere dans le update
+    float currentAlpha; //Lorsqu'on est en train de mourir, c'est cet alpha qu'on decremenete
+    float dyingSpeed; //La vitesse a laquelle on fade
+    GameObject currentBone; //L'os qu'on est actuellement en train de jeter
 
     /// <summary>
     /// C'est ici qu'ont lieu les animations
@@ -49,6 +56,15 @@ public abstract class AEnemy : AEntity
                 timer -= Time.deltaTime;
             }
         }
+        if (dying)
+        {
+            if (currentAlpha <= 0) gameObject.SetActive(false);
+            else
+            {
+                currentAlpha -= dyingSpeed * Time.deltaTime;
+                spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, currentAlpha / 255);
+            }
+        }
     }
 
     /// <summary>
@@ -73,8 +89,21 @@ public abstract class AEnemy : AEntity
     public override void getHurt(Vector2 attackDirection)
     {
         PlayDeath();
+        //Si on a un prefab d'os, on l'utilise
+        if(BonePrefab != null)
+        {
+            for(int i = 0; i < 3; i++)
+            {
+                currentBone = GameObject.Instantiate(BonePrefab);
+                currentBone.GetComponent<ParticleScript>().Initialize(transform.position);
+            }
+        }
+
         gameMaster.EnemyRemover(gameObject);
-        gameObject.SetActive(false);
+        acting = false;
+        dying = true;
+        currentAlpha = 255;
+        dyingSpeed = currentAlpha * 4;
     }
 
     /// <summary>
@@ -96,7 +125,7 @@ public abstract class AEnemy : AEntity
         {
             PlayAttack();
             Attack();
-            timer = 0.25f;
+            timer = 0.20f;
         }
         acting = true;
     }

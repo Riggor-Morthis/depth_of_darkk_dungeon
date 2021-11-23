@@ -23,6 +23,7 @@ public class GameMasterScript : MonoBehaviour
     public GameObject treasurePrefab; //Pour stocker le prefab des tresors dans le donjon
     public GameObject enemyPrefab; //Pour stocker le prefab de l'ennemi
     public GameObject secondEnemyPrefab; //L'autre prefab ennemi, pour le niveau 13
+    public GameObject coinPrefab; //Les pieces lorsqu'on choppe un tresor
 
     //Private
     int startX, startY; //Point de depart des coordonnes (dans le negatif)
@@ -40,6 +41,8 @@ public class GameMasterScript : MonoBehaviour
     int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
     int currentSkeleton; //A quel ennemi en est-on ?
     AudioManagerScript audioManager; //Utilise pour tous les sons
+    int nbCoins; //Utilise par les particules pour savoir combien il y en a
+    GameObject currentCoin; //La piece qu'on vient d'initialiser
 
     /// <summary>
     /// Appeler au debut de la scene, pour tout initialiser
@@ -303,6 +306,13 @@ public class GameMasterScript : MonoBehaviour
             //Si on a les memes coordonnees qu'un tresor
             if(dungeonTreasures[i].transform.position == playerKnight.transform.position)
             {
+                nbCoins = Random.Range(1, 6);
+                for (int j = 0; j < nbCoins; j++)
+                {
+                    currentCoin = GameObject.Instantiate(coinPrefab);
+                    currentCoin.GetComponent<ParticleScript>().Initialize(playerKnight.transform.position);
+                }
+
                 audioManager.Play("TreasurePickedUp");
                 playerKnight.ScoreTreasure();
                 dungeonTreasures[i].SetActive(false);

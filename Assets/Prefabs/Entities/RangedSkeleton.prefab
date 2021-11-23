@@ -53,6 +53,7 @@ MonoBehaviour:
   - {fileID: -7725311878048361607, guid: 3bae50c0bcbe6864ca4949afe790ea86, type: 3}
   - {fileID: 8828219858691326813, guid: 3bae50c0bcbe6864ca4949afe790ea86, type: 3}
   - {fileID: 1981465782759631101, guid: 3bae50c0bcbe6864ca4949afe790ea86, type: 3}
+  BonePrefab: {fileID: 1231016851427441107, guid: bc51825e5cc1d484a997eb9a9e45221c, type: 3}
 --- !u!1 &8434175555900175378
 GameObject:
   m_ObjectHideFlags: 0

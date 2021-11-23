@@ -71,15 +71,15 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: cab18805635f4114fb9d67cf9129903c, type: 3}
+  m_Sprite: {fileID: -5138594789456230905, guid: cab18805635f4114fb9d67cf9129903c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 8, y: 4}
+  m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &5881060924338918086
@@ -135,3 +135,4 @@ MonoBehaviour:
   - {fileID: -4448049756667840325, guid: cab18805635f4114fb9d67cf9129903c, type: 3}
   - {fileID: -2979131897240949024, guid: cab18805635f4114fb9d67cf9129903c, type: 3}
   - {fileID: 4137650713470942566, guid: cab18805635f4114fb9d67cf9129903c, type: 3}
+  HelmetPrefab: {fileID: 1231016851427441107, guid: c0d9dbaff0b191d4cbf121b557c0f830, type: 3}

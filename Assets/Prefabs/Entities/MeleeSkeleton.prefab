@@ -135,3 +135,4 @@ MonoBehaviour:
   - {fileID: 4286455084159524025, guid: 14cd07cb141d42045a22c19aae1d4e60, type: 3}
   - {fileID: 2972551687874553046, guid: 14cd07cb141d42045a22c19aae1d4e60, type: 3}
   - {fileID: 655983920177782263, guid: 14cd07cb141d42045a22c19aae1d4e60, type: 3}
+  BonePrefab: {fileID: 1231016851427441107, guid: bc51825e5cc1d484a997eb9a9e45221c, type: 3}

@@ -183,6 +183,7 @@ MonoBehaviour:
   treasurePrefab: {fileID: 3293928215325189452, guid: 35dfbeb53561c784b825b7ac36aec09f, type: 3}
   enemyPrefab: {fileID: 5286752961115359974, guid: abe2e796cb3d5d54e855fcc83f5d1b0a, type: 3}
   secondEnemyPrefab: {fileID: 8434175555583678831, guid: ad29748b6909c254dbabda0fd03c44c7, type: 3}
+  coinPrefab: {fileID: 1231016851427441107, guid: 19f33ea7c034f554dbd8cf78ed985b39, type: 3}
 --- !u!1 &2082583807
 GameObject:
   m_ObjectHideFlags: 0
@@ -351,34 +352,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5881060923504002363, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
-      propertyPath: m_Size.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5881060923504002363, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
-      propertyPath: m_Size.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 5881060923504002363, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: -5138594789456230905, guid: cab18805635f4114fb9d67cf9129903c, type: 3}
-    - target: {fileID: 5881060923504002363, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
-      propertyPath: m_DrawMode
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5881060923504002363, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
-      propertyPath: m_WasSpriteAssigned
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5881060924338918086, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
       propertyPath: m_Name
       value: PlayerKnight
       objectReference: {fileID: 0}
-    - target: {fileID: 5881060924338918088, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
-      propertyPath: gameMaster
-      value: 
-      objectReference: {fileID: 1681119270}
     - target: {fileID: 5881060924338918089, guid: 47f40a5a2ad9bb44e85988525e2726b4, type: 3}
       propertyPath: m_RootOrder
       value: 2
