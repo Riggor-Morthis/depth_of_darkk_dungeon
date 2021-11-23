@@ -5,11 +5,30 @@ using UnityEngine;
 public class RangedSkeletonScript : AEnemy
 {
     //Private
-    Vector2 nextMove; //La ou l'ennemi va aller/attaquer la prochaine fois
-    bool intentionAttaque; //Est-ce que le monstre compte nous attaquer, ou non ?
-    GameObject target; //Le truc qu'on essaye de toucher
     int inspector; //Utilise pour tracer des lignes ou des colonnes
     int shtong; //Utilise pour indiquer que le projectile a atteint quelque chose
+
+    /// <summary>
+    /// La fonction qui gere l'attaque de notre squelette
+    /// </summary>
+    protected override void Attack()
+    {
+        inspector = 1;
+        shtong = 0;
+        //On s'arrete si on trouve un mur, ou un ennemi
+        while (shtong != -1 && shtong != 2)
+        {
+            //On regarde la cible actuelle
+            shtong = gameMaster.AuthorizeMovement((Vector2)transform.position + inspector * nextMove);
+            //Si la cible est une entite, on peut taper
+            if (shtong == 2)
+            {
+                target = gameMaster.GetEntity((Vector2)transform.position + inspector * nextMove);
+                target.GetComponent<AEntity>().getHurt(nextMove);
+            }
+            inspector++;
+        }
+    }
 
     /// <summary>
     /// Ordonne au monstre de trouver son prochain mouvement
@@ -45,40 +64,75 @@ public class RangedSkeletonScript : AEnemy
         else
         {
             intentionAttaque = false;
-            //On commence par obtenir la meilleure case a atteindre
-            nextMove = gameMaster.PathFinding((Vector2)transform.position);
-            //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
-            nextMove.x = Mathf.Round(nextMove.x - transform.position.x);
-            nextMove.y = Mathf.Round(nextMove.y - transform.position.y);
+            //On commence par récupérer la distance au joueur
+            distanceJoueur = Vector3.Distance(transform.position, gameMaster.getPlayerPosition());
+            //Si on est assez proche, on va vers le joueur directement
+            if (distanceJoueur < 4f)
+            {
+                //On commence par obtenir la meilleure case a atteindre
+                nextMove = gameMaster.PathFinding((Vector2)transform.position);
+                //On y soustrait notre position actuelle pour avoir un vrai vecteur de mouvement
+                nextMove.x = Mathf.RoundToInt(nextMove.x - transform.position.x);
+                nextMove.y = Mathf.RoundToInt(nextMove.y - transform.position.y);
+            }
+
+            //Sinon, on est trop loin, donc on se contente d'errer aleatoirement
+            else
+            {
+                do
+                {
+                    randomChoice = Random.Range(0, 4);
+                    if (randomChoice == 0) nextMove = Vector2.up;
+                    else if (randomChoice == 1) nextMove = Vector2.down;
+                    else if (randomChoice == 2) nextMove = Vector2.right;
+                    else nextMove = Vector2.left;
+                } while (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) != 1);
+            }
+
             //On indique nos intentions sur le plateau
             gameMaster.EnemyIntention((int)((Vector2)transform.position + nextMove).x, (int)((Vector2)transform.position + nextMove).y, intentionAttaque);
         }
+        //On oublie pas de changer son sprite
+        ChangeSprite();
     }
 
     /// <summary>
-    /// Ordonne au monstre de faire l'action qu'il avait prevu
+    /// La fonction qui joue le clip d'attaque
     /// </summary>
-    public override void Action()
+    protected override void PlayAttack()
     {
-        if (!intentionAttaque)
-        {
-            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1) transform.position += (Vector3)nextMove;
-        }
-        else
-        {
-            //On cherche ce sur quoi le tir s'arrete, entite ou mur du fond
-            inspector = 1;
-            shtong = 0;
-            while (shtong != -1 && shtong != 2)
-            {
-                shtong = gameMaster.AuthorizeMovement((Vector2)transform.position + inspector * nextMove);
-                if(shtong == 2)
-                {
-                    target = gameMaster.GetEntity((Vector2)transform.position + inspector * nextMove);
-                    target.GetComponent<AEntity>().getHurt(nextMove);
-                }
-                inspector++;
-            }
-        }
+        audioManager.Play("MagicAttack");
+    }
+
+    /// <summary>
+    /// La fonction qui joue le clip de pas
+    /// </summary>
+    protected override void PlayMovement()
+    {
+        audioManager.Play("Step");
+    }
+
+    /// <summary>
+    /// La fonction qui joue le clip de mort
+    /// </summary>
+    protected override void PlayDeath()
+    {
+        audioManager.Play("SkeletonKilled");
+    }
+
+    /// <summary>
+    /// La fonction qui modifie notre sprite en fonction de ce qu'on va faire
+    /// </summary>
+    protected override void ChangeSprite()
+    {
+        //On commence par determiner le meilleur sprite en fonction de ce qu'on va faire
+        if (intentionAttaque) spriteY = 4;
+        else spriteY = 0;
+        if (nextMove == Vector2.down) spriteX = 0;
+        else if (nextMove == Vector2.left) spriteX = 1;
+        else if (nextMove == Vector2.up) spriteX = 2;
+        else spriteX = 3;
+        //Ensuite, on applique ce sprite
+        spriteRenderer.sprite = spriteArray[spriteX + spriteY];
     }
 }

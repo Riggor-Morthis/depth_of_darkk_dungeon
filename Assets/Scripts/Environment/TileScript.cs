@@ -28,11 +28,19 @@ public class TileScript : MonoBehaviour
 
         transform.position = new Vector2(coordX, coordY);
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         spriteRenderer.color = colour;
         spriteRenderer.sortingOrder = -(100 + coordY);
 
         voisins = new List<Vector2>();
+    }
+
+    /// <summary>
+    /// Exclusivement utilise par les tresors, pour s'afficher au dessus du sol
+    /// </summary>
+    public void ChaneSortingOrder()
+    {
+        spriteRenderer.sortingOrder += 2;
     }
 
     /// <summary>

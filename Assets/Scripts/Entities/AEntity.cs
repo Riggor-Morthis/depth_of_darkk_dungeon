@@ -4,11 +4,14 @@ using UnityEngine;
 
 public abstract class AEntity : MonoBehaviour
 {
-    //Protected
-    protected GameMasterScript gameMaster;
+    //Public
+    public Sprite[] spriteArray; //La ou on va stocker tous les sprites de l'entite
 
-    //Private
-    SpriteRenderer spriteRenderer; //Le component du sprite
+    //Protected
+    protected GameMasterScript gameMaster; //Le maitre du jeu
+    protected SpriteRenderer spriteRenderer; //Le component du sprite
+    protected float actionSpeed; //Utilisee pour les animations
+    protected AudioManagerScript audioManager; //Utilise pour tous les sons
 
     /// <summary>
     /// Modifie le rendering order de l'entite en fonction de ses coordonnes en y
@@ -27,7 +30,10 @@ public abstract class AEntity : MonoBehaviour
         gameMaster = GameObject.Find("GameMaster").GetComponent<GameMasterScript>();
         transform.position = start;
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        spriteRenderer.sprite = spriteArray[0];
         CheckRenderingOrder();
+        actionSpeed = 5f;
+        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManagerScript>();
     }
 
     /// <summary>
