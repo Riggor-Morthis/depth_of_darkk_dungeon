@@ -6,7 +6,8 @@ public class DummyScript : AEnemy
 {
     public override void PathFinding()
     {
-        //Lol
+        intentionAttaque = false;
+        nextMove = Vector2.zero;
     }
 
     public new void Action()
@@ -17,5 +18,20 @@ public class DummyScript : AEnemy
     protected override void Attack()
     {
         //Lol
+    }
+
+    protected override void PlayAttack()
+    {
+        audioManager.Play("DummyKilled");
+    }
+
+    protected override void PlayMovement()
+    {
+        audioManager.Play("DummyKilled");
+    }
+
+    protected override void PlayDeath()
+    {
+        audioManager.Play("DummyKilled");
     }
 }

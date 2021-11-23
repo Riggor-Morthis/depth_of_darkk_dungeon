@@ -57,6 +57,7 @@ public class PlayerKnightScript : AEntity
                     //Si on a un 2, il faut lancer une phase d'attaque
                     if (isMovementPossible == 2)
                     {
+                        audioManager.Play("SwordAttack");
                         //On recupere la cible et on la blesse
                         target = gameMaster.GetEntity(transform.position + moveVector);
                         if (target != null) target.GetComponent<AEntity>().getHurt(moveVector);
@@ -110,13 +111,14 @@ public class PlayerKnightScript : AEntity
         //On demande au maitre du jeu si le mouvement est possible
         isMovementPossible = gameMaster.AuthorizeMovement(transform.position + moveVector);
         //Si il est possible on commence les animations
-        if (isMovementPossible >= 0)
+        if (isMovementPossible > 0)
         {
             ChangeSprite();
             acting = true;
             //Si on a un ennemi devant
             if (isMovementPossible == 2)
             {
+                audioManager.Play("SwordAttack");
                 //On reste ici
                 targetDestination = transform.position;
                 //On recupere la cible et on la blesse
@@ -130,6 +132,7 @@ public class PlayerKnightScript : AEntity
             }
             else
             {
+                audioManager.Play("Step");
                 targetDestination = transform.position + moveVector;
                 ScoreModifier(-247);
             }
@@ -174,18 +177,24 @@ public class PlayerKnightScript : AEntity
     public override void getHurt(Vector2 attackDirection)
     {
         //Il ne faut que le monstre attaque de face si il veut nous faire des degats
-        if(!(attackDirection == -(Vector2)moveVector))
+        if (!(attackDirection == -(Vector2)moveVector))
         {
             //Si on a un Heaume, pas de degats
             if (helmet)
             {
+                audioManager.Play("HelmetDestroyed");
                 helmet = false;
                 ChangeSprite();
                 ScoreModifier(-2500);
             }
             //Sinon, on a perdu
-            else gameMaster.ReloadScene();
+            else
+            {
+                audioManager.Play("PlayerKilled");
+                gameMaster.ReloadScene();
+            }
         }
+        else audioManager.Play("ShieldBlock");
     }
 
     /// <summary>

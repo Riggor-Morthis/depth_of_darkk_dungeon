@@ -36,6 +36,14 @@ public class TileScript : MonoBehaviour
     }
 
     /// <summary>
+    /// Exclusivement utilise par les tresors, pour s'afficher au dessus du sol
+    /// </summary>
+    public void ChaneSortingOrder()
+    {
+        spriteRenderer.sortingOrder += 2;
+    }
+
+    /// <summary>
     /// Change la couleur vers une nouvelle couleur pour faire interface
     /// </summary>
     /// <param name="color">la nouvelle couleur a mettre</param>

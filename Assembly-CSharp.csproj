@@ -63,6 +63,8 @@
     <Compile Include="Assets\Scripts\Game\GameMasterScript.cs" />
     <Compile Include="Assets\Scripts\Entities\DummyScript.cs" />
     <Compile Include="Assets\Scripts\Environment\TileScript.cs" />
+    <Compile Include="Assets\Scripts\Environment\AudioManagerScript.cs" />
+    <Compile Include="Assets\Scripts\Environment\Sound.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

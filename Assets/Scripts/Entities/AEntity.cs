@@ -11,6 +11,7 @@ public abstract class AEntity : MonoBehaviour
     protected GameMasterScript gameMaster; //Le maitre du jeu
     protected SpriteRenderer spriteRenderer; //Le component du sprite
     protected float actionSpeed; //Utilisee pour les animations
+    protected AudioManagerScript audioManager; //Utilise pour tous les sons
 
     /// <summary>
     /// Modifie le rendering order de l'entite en fonction de ses coordonnes en y
@@ -32,6 +33,7 @@ public abstract class AEntity : MonoBehaviour
         spriteRenderer.sprite = spriteArray[0];
         CheckRenderingOrder();
         actionSpeed = 5f;
+        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManagerScript>();
     }
 
     /// <summary>

@@ -39,6 +39,7 @@ public class GameMasterScript : MonoBehaviour
     int manhattanDistance; //Aussi utilise pour l'attribution de distance
     int distanceMin; //Utilisee pour donner le meilleur lors du pathfinding des monstres
     int currentSkeleton; //A quel ennemi en est-on ?
+    AudioManagerScript audioManager; //Utilise pour tous les sons
 
     /// <summary>
     /// Appeler au debut de la scene, pour tout initialiser
@@ -78,7 +79,7 @@ public class GameMasterScript : MonoBehaviour
     }
 
     /// <summary>
-    /// Juste pour initialiser nos differentes listes pour les distances de manhattan
+    /// Juste pour initialiser nos differentes listes pour les distances de manhattan (ansi que l'audio manager)
     /// </summary>
     void PathFinderInitializer()
     {
@@ -86,6 +87,8 @@ public class GameMasterScript : MonoBehaviour
         casesEnCours = new List<Vector2>();
         casesFutures = new List<Vector2>();
         voisinsVises = new List<Vector2>();
+        //Il fallait bien le mettre quelque part
+        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManagerScript>();
     }
 
     /// <summary>
@@ -162,6 +165,7 @@ public class GameMasterScript : MonoBehaviour
         {
             dungeonTreasures.Add(Instantiate(treasurePrefab));
             dungeonTreasures.Last().GetComponent<TileScript>().Initialize((int)treasure.x, (int)treasure.y, Color.white);
+            dungeonTreasures.Last().GetComponent<TileScript>().ChaneSortingOrder();
         }
     }
 
@@ -174,13 +178,13 @@ public class GameMasterScript : MonoBehaviour
             {
                 if (dungeonGrid[i, j] != null)
                 {
-                    if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null && !treasures.Contains(new Vector2(i - 1 + startX, j + startY)))
+                    if ((i - 1) >= 0 && dungeonGrid[i - 1, j] != null)
                         dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i - 1, j));
-                    if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null && !treasures.Contains(new Vector2(i + 1 + startX, j + startY)))
+                    if ((i + 1) < levelWidth && dungeonGrid[i + 1, j] != null)
                         dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i + 1, j));
-                    if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null && !treasures.Contains(new Vector2(i + startX, j - 1 + startY)))
+                    if ((j - 1) >= 0 && dungeonGrid[i, j - 1] != null)
                         dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j - 1));
-                    if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null && !treasures.Contains(new Vector2(i + startX, j + 1 + startY)))
+                    if ((j + 1) < levelHeight && dungeonGrid[i, j + 1] != null)
                         dungeonGrid[i, j].GetComponent<TileScript>().AddNeighbor(new Vector2(i, j + 1));
                 }
             }
@@ -281,6 +285,7 @@ public class GameMasterScript : MonoBehaviour
     {
         if ((Vector2)playerKnight.transform.position == endPosition)
         {
+            audioManager.Play("Triumph");
             GameMasterRessources.weWon = true;
             Debug.Log(playerKnight.getScore());
             SceneManager.LoadScene(nextLevel);
@@ -298,9 +303,10 @@ public class GameMasterScript : MonoBehaviour
             //Si on a les memes coordonnees qu'un tresor
             if(dungeonTreasures[i].transform.position == playerKnight.transform.position)
             {
+                audioManager.Play("TreasurePickedUp");
                 playerKnight.ScoreTreasure();
                 dungeonTreasures[i].SetActive(false);
-                //dungeonTreasures.RemoveAt(i);
+                dungeonTreasures.RemoveAt(i);
             }
         }
     }

@@ -56,5 +56,27 @@ public class MeleeSkeletonScript : AEnemy
         ChangeSprite();
     }
 
-    
+    /// <summary>
+    /// La fonction qui joue le clip d'attaque
+    /// </summary>
+    protected override void PlayAttack()
+    {
+        audioManager.Play("SwordAttack");
+    }
+
+    /// <summary>
+    /// La fonction qui joue le clip de pas
+    /// </summary>
+    protected override void PlayMovement()
+    {
+        audioManager.Play("Step");
+    }
+
+    /// <summary>
+    /// La fonction qui joue le clip de mort
+    /// </summary>
+    protected override void PlayDeath()
+    {
+        audioManager.Play("SkeletonKilled");
+    }
 }

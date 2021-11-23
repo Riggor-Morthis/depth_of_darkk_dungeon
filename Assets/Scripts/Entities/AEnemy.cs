@@ -68,23 +68,14 @@ public abstract class AEnemy : AEntity
     }
 
     /// <summary>
-    /// Demande a l'entite d'attaquer
-    /// </summary>
-    protected abstract void Attack();
-
-    /// <summary>
     /// Ce qu'il se passe lorsque le monstre est attaque
     /// </summary>
     public override void getHurt(Vector2 attackDirection)
     {
+        PlayDeath();
         gameMaster.EnemyRemover(gameObject);
         gameObject.SetActive(false);
     }
-
-    /// <summary>
-    /// Ordonne au monstre de trouver son prochain mouvement
-    /// </summary>
-    public abstract void PathFinding();
 
     /// <summary>
     /// Ordonne au monstre de faire l'action qu'il avait prevu
@@ -94,14 +85,44 @@ public abstract class AEnemy : AEntity
         //Si on compte pas attaquer, on trouve l'endroit qu'on veut
         if (!intentionAttaque)
         {
-            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1) targetDestination = transform.position + (Vector3)nextMove;
+            if (gameMaster.AuthorizeMovement((Vector2)transform.position + nextMove) == 1)
+            {
+                targetDestination = transform.position + (Vector3)nextMove;
+                PlayMovement();
+            }
         }
         //Sinon, on attaque direct
         else
         {
+            PlayAttack();
             Attack();
             timer = 0.25f;
         }
         acting = true;
     }
+
+    /// <summary>
+    /// Demande a l'entite d'attaquer
+    /// </summary>
+    protected abstract void Attack();
+
+    /// <summary>
+    /// La fonction qui joue le clip d'attaque
+    /// </summary>
+    protected abstract void PlayAttack();
+
+    /// <summary>
+    /// La fonction qui joue le clip de pas
+    /// </summary>
+    protected abstract void PlayMovement();
+
+    /// <summary>
+    /// La fonction qui joue le clip de mort
+    /// </summary>
+    protected abstract void PlayDeath();
+
+    /// <summary>
+    /// Ordonne au monstre de trouver son prochain mouvement
+    /// </summary>
+    public abstract void PathFinding();
 }
